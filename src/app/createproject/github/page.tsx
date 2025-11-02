@@ -1,4 +1,3 @@
-// app/createproject/github/page.tsx
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -6,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { createProjectSaveRequest } from '@/api/requests/project';
 import { useUserStore } from '@/store/userStore';
 import ConfirmProjectDialog from '@/components/CreateProject/ConfirmProjectDialog';
+import {useTeamStore} from "@/store/teamStore";
 
 const GH_REGEX = /^https?:\/\/(www\.)?github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/?$/;
 
@@ -13,9 +13,10 @@ export default function GithubPage() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const { user } = useUserStore();
+    const currentTeamId = useTeamStore((s) => s.currentTeamId);
 
     const projectName  = useMemo(() => searchParams.get('projectName')  || '', [searchParams]);
-    const devInterest  = useMemo(() => searchParams.get('devInterest')  || '', [searchParams]); // ✅ 변경
+    const devInterest  = useMemo(() => searchParams.get('devInterest')  || '', [searchParams]);
     const description  = useMemo(() => searchParams.get('description')  || '', [searchParams]);
 
     const [githubUrl, setGithubUrl] = useState('');
@@ -23,11 +24,13 @@ export default function GithubPage() {
     const [submitting, setSubmitting] = useState(false);
     const [openConfirm, setOpenConfirm] = useState(false);
 
+    console.log("currentTeamId :: ", JSON.stringify(currentTeamId));
+
     useEffect(() => {
-        if (!projectName || !devInterest || !description) { // ✅ 변경
+        if (!projectName || !devInterest || !description) {
             router.replace('/createproject');
         }
-    }, [projectName, devInterest, description, router]);   // ✅ 변경
+    }, [projectName, devInterest, description, router]);
 
     const doCreate = async (finalUrl: string | null) => {
         try {
@@ -38,10 +41,11 @@ export default function GithubPage() {
             setSubmitting(true);
             await createProjectSaveRequest({
                 projectName,
-                devInterest,                 // ✅ 정의된 값 전달
+                devInterest,
                 description,
                 leaderName: user.nickname,
-                gitHubUrl: finalUrl,
+                githubUrl: finalUrl ?? undefined,
+                teamId:String(currentTeamId),
             });
             router.push(`/project/${encodeURIComponent(projectName)}`);
         } catch (e) {
@@ -120,7 +124,7 @@ export default function GithubPage() {
                             onClick={() =>
                                 router.push(
                                     `/createproject/description?projectName=${encodeURIComponent(projectName)}&devInterest=${encodeURIComponent(devInterest)}&description=${encodeURIComponent(description)}`
-                                ) // ✅ devInterest로 변경
+                                )
                             }
                             disabled={submitting}
                         >
@@ -160,7 +164,7 @@ export default function GithubPage() {
                 loading={submitting}
                 data={{
                     projectName,
-                    devInterest,              // ✅ 전달 키 변경
+                    devInterest,
                     description,
                     leaderName: user?.nickname || '',
                     gitHubUrl: githubUrl || '(none)',

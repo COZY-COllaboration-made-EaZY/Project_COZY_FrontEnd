@@ -1,29 +1,40 @@
 'use client';
+
 import { useEffect, useState } from 'react';
+
+interface ConfirmData {
+    projectName: string;
+    devInterest: string;
+    description: string;
+    leaderName: string;
+    gitHubUrl?: string | null;
+}
 
 interface Props {
     open: boolean;
     onClose: () => void;
-    onConfirm: () => Promise<void> | void;
+    onConfirm: (payload: ConfirmData) => Promise<void> | void;
     loading?: boolean;
-    data: {
-        projectName: string;
-        devInterest: string;
-        description: string;
-        leaderName: string;
-        gitHubUrl?: string | null;
-    };
+    data: ConfirmData;
 }
 
-
+// 대소문자 허용(i), 프로토콜/www 선택적, 끝에 / 또는 .git 허용
 const GH_REGEX =
-    /^https?:\/\/(www\.)?github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/?$/;
+    /^(https?:\/\/)?(www\.)?github\.com\/[\w.-]+\/[\w.-]+(\/|\.git)?$/i;
 
-export default function ConfirmProjectDialog({ open, onClose, onConfirm, loading, data }: Props) {
+export default function ConfirmProjectDialog({
+                                                 open,
+                                                 onClose,
+                                                 onConfirm,
+                                                 loading,
+                                                 data,
+                                             }: Props) {
     const [agree, setAgree] = useState(false);
 
     useEffect(() => {
-        const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onClose();
+        };
         if (open) document.addEventListener('keydown', onKey);
         return () => document.removeEventListener('keydown', onKey);
     }, [open, onClose]);
@@ -34,20 +45,24 @@ export default function ConfirmProjectDialog({ open, onClose, onConfirm, loading
 
     if (!open) return null;
 
-
     const hasProjectName = !!data.projectName?.trim();
-    const hasInterest    = !!data.devInterest?.trim();
-    const hasLeader      = !!data.leaderName?.trim();
-    const hasDesc        = !!data.description?.trim();
-    const githubValid    = !((data.gitHubUrl ?? '').trim()) || GH_REGEX.test((data.gitHubUrl ?? '').trim());
+    const hasInterest = !!data.devInterest?.trim();
+    const hasLeader = !!data.leaderName?.trim();
+    const hasDesc = !!data.description?.trim();
+    const rawGit = (data.gitHubUrl ?? '').trim();
+    const git = rawGit.toLowerCase() === '(none)' ? '' : rawGit;
 
-    const allValid   = hasProjectName && hasInterest && hasLeader && hasDesc && githubValid;
+    const hasGit = git.length > 0;
+    const githubValid = !hasGit || GH_REGEX.test(git);
+
+    const allValid = hasProjectName && hasInterest && hasLeader && hasDesc && githubValid;
     const canConfirm = allValid && agree && !loading;
 
     const Check = ({ ok }: { ok: boolean }) => (
         <span
             className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
-                ok ? 'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200'
+                ok
+                    ? 'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200'
                     : 'bg-red-100 text-red-700 ring-1 ring-red-200'
             }`}
             aria-hidden
@@ -55,6 +70,14 @@ export default function ConfirmProjectDialog({ open, onClose, onConfirm, loading
       {ok ? '✓' : '!'}
     </span>
     );
+
+    const handleConfirm = () => {
+        const payload = {
+            ...data,
+            gitHubUrl: hasGit ? git : '',
+        };
+        return onConfirm(payload);
+    };
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -64,25 +87,35 @@ export default function ConfirmProjectDialog({ open, onClose, onConfirm, loading
                 className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-200"
             >
                 <div className="mb-5 flex items-center gap-3">
-                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">✓</span>
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
+            ✓
+          </span>
                     <h2 className="text-xl font-bold tracking-tight">프로젝트 생성 내용 확인</h2>
                     <span className="ml-auto rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
             Review & Confirm
           </span>
                 </div>
+
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div className="rounded-xl border border-gray-200 p-3">
                         <p className="text-xs text-gray-500">Project Name</p>
-                        <p className="mt-1 font-semibold text-gray-900 break-words">{data.projectName}</p>
+                        <p className="mt-1 break-words font-semibold text-gray-900">
+                            {data.projectName}
+                        </p>
                     </div>
+
                     <div className="rounded-lg border p-3">
                         <p className="text-xs text-gray-500">Interest</p>
                         <p className="font-semibold">{data.devInterest}</p>
                     </div>
+
                     <div className="rounded-xl border border-gray-200 p-3">
                         <p className="text-xs text-gray-500">Leader Nickname</p>
-                        <p className="mt-1 font-semibold text-gray-900 break-words">{data.leaderName}</p>
+                        <p className="mt-1 break-words font-semibold text-gray-900">
+                            {data.leaderName}
+                        </p>
                     </div>
+
                     <div className="rounded-xl border border-gray-200 p-3 sm:col-span-2">
                         <p className="text-xs text-gray-500">Description</p>
                         <div className="mt-1 max-h-48 overflow-auto whitespace-pre-wrap text-gray-900">
@@ -94,8 +127,8 @@ export default function ConfirmProjectDialog({ open, onClose, onConfirm, loading
                     {typeof data.gitHubUrl !== 'undefined' && (
                         <div className="rounded-xl border border-gray-200 p-3 sm:col-span-2">
                             <p className="text-xs text-gray-500">GitHub</p>
-                            <p className="mt-1 font-semibold text-gray-900 break-words">
-                                {data.gitHubUrl && data.gitHubUrl.trim() !== '' ? data.gitHubUrl : '(none)'}
+                            <p className="mt-1 break-words font-semibold text-gray-900">
+                                {hasGit ? git : '(none)'}
                             </p>
                             {!githubValid && (
                                 <p className="mt-2 text-xs text-red-600">
@@ -129,7 +162,9 @@ export default function ConfirmProjectDialog({ open, onClose, onConfirm, loading
                         {typeof data.gitHubUrl !== 'undefined' && (
                             <li className="flex items-center gap-2">
                                 <Check ok={githubValid} />
-                                <span>GitHub URL {data.gitHubUrl ? '형식이 올바릅니다.' : '(선택 항목) 비워도 됩니다.'}</span>
+                                <span>
+                  GitHub URL {hasGit ? '형식이 올바릅니다.' : '(선택 항목) 비워도 됩니다.'}
+                </span>
                             </li>
                         )}
                     </ul>
@@ -157,10 +192,9 @@ export default function ConfirmProjectDialog({ open, onClose, onConfirm, loading
                     </button>
                     <button
                         className={`rounded-lg px-4 py-2 text-sm font-semibold text-white shadow ${
-                            canConfirm ? 'bg-blue-600 hover:bg-blue-700 active:scale-[0.99]'
-                                : 'bg-blue-400 opacity-60'
+                            canConfirm ? 'bg-blue-600 hover:bg-blue-700 active:scale-[0.99]' : 'bg-blue-400 opacity-60'
                         }`}
-                        onClick={onConfirm}
+                        onClick={handleConfirm}
                         disabled={!canConfirm}
                     >
                         {loading ? '생성 중...' : '확인 후 생성'}
