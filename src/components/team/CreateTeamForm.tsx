@@ -3,6 +3,7 @@
 import {useState} from "react";
 import {useRouter} from "next/navigation";
 import {checkTeamNameRequest, CreateTeamDTO, createTeamRequest} from "@/api/requests/team";
+import {useUserStore} from "@/store/userStore";
 
 export const CreateTeamForm = () => {
 
@@ -15,6 +16,7 @@ export const CreateTeamForm = () => {
     const [isSave, setIsSave] = useState<boolean>(false);
     // val
     const router = useRouter();
+    const { isLoggedIn } = useUserStore();
 
     // fun
     const handleCheckName = async () => {
@@ -42,6 +44,7 @@ export const CreateTeamForm = () => {
 
     const handleTeamNameSave = async () => {
        // if (!isAvailable) return;
+        if (!isLoggedIn) return;
        setIsSave(true);
        try {
            const dto = {
@@ -49,6 +52,8 @@ export const CreateTeamForm = () => {
                description:description?.trim() || "",
            };
            await createTeamRequest(dto);
+           alert("Successfully created team!");
+           router.push("/");
        }catch (error) {
            setErrorMessage("error");
            setIsAvailable(false);

@@ -31,7 +31,6 @@ export default function ProjectDashBoard() {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [search, setSearch] = useState('');
-
     useEffect(() => {
         const fetchTasks = async () => {
             if (!currentProjectId) return;

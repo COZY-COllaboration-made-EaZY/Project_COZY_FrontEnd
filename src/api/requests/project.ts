@@ -6,7 +6,7 @@ export type ProjectDetail = {
     projectName: string;
     description: string;
     devInterest: string;
-    gitHubUrl: string;
+    githubUrl: string;
     ownerId: string;
     ownerName: string;
     createdAt: string;
@@ -17,31 +17,37 @@ export type CreateProjectDTO = {
     devInterest: string;
     description: string;
     leaderName: string;
-    gitHubUrl: string;
+    githubUrl?: string;
+    teamId: string;
 };
 
 export type UpdateProjectDTO = {
     projectName: string;
     devInterest: string;
     description: string;
-    gitHubUrl: string | null;
+    githubUrl: string | null;
     leaderName?: string;
 };
 
-export const getProjectDetailRequest = async (projectName: string): Promise<ProjectDetail> => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) throw new Error("인증 토큰이 없습니다.");
+export type ProjectSummary = {
+    projectId: string;
+    teamId: string;
+    teamName: string;
+    projectName: string;
+    leader: string;
+    description?: string;
+    createdAt: string;
+}
 
-    const res = await apiClient.get(`/api/project/detail/${encodeURIComponent(projectName)}`, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
+export const getProjectDetailRequest = async (projectName: string): Promise<ProjectDetail> => {
+    const res = await apiClient.get(`/api/project/detail/${encodeURIComponent(projectName)}`)
     const raw = res.data;
     return {
         projectId: raw.projectId,
         projectName: raw.projectName,
         description: raw.description,
         devInterest: raw.devInterest,
-        gitHubUrl: raw.gitHubUrl,
+        githubUrl: raw.githubUrl,
         ownerId: raw.ownerId,
         ownerName: raw.ownerName,
         createdAt: raw.createdAt,
@@ -62,60 +68,37 @@ export const checkProjectNameRequest = async (projectName: string): Promise<bool
 
 // 프로젝트 저장
 export const createProjectSaveRequest = async (dto: CreateProjectDTO) => {
-    const token = localStorage.getItem('accessToken');
     const res = await apiClient.post(
         '/api/project/project-create',
         dto,
-        {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            },
-        }
     );
     return res.data;
 };
 
-// 로그인을 하고 나서 가지고 있는 프로젝트 정보 가져옴
-export const getMyProjectInfoRequest = async () => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-        window.location.href = '/login';
-        return;
-    }
-
+// 팀의 고유 값 가지고 데이터베이스에서 팀에서 만든 프로젝트 리스트를 가져옴
+export const getMyTeamProjectListRequest = async (teamId : string) => {
     try {
-        const response = await apiClient.get('/api/project/my-projectInfo', {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await apiClient.get('/api/project/my-team-project-list',{params: {teamId}});
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.status === 401) {
-            window.location.href = '/login';
-        } else {
-            console.error('프로젝트 정보 조회 실패:', error);
-            throw error;
-        }
+        console.log(error);
     }
 };
 
-
-// 프로젝트 이름으로 조회
-export const getProjectByNameRequest = async (projectName: string) => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-    if (!token) throw new Error("인증 토큰이 없습니다.");
-
+//프로젝트의 고유 값 가지고 데이터베이스에서 팀에서 만든 프로젝트 리스트중에 하나를 선택하면 그 프로젝트의 아이디를 이용해서 프로젝트의 세부 정보를 가져온다.
+export const getMyTeamProjectDetailInfoRequest = async (projectId : string) => {
+    console.log("Req :: projectId :: ", projectId);
     try {
-        const response = await apiClient.get(`/api/project/name/${projectName}`, {
-            headers: { Authorization: `Bearer ${token}` },
+        const res = await apiClient.get("/api/project/project-detail-info", {
+            params: { projectId }
         });
-        return response.data;
-    } catch (error: any) {
-        console.error("❌ 프로젝트 정보 가져오기 실패:", error.message);
-        alert("프로젝트 정보 가져오기 실패");
-        return undefined;
+        console.log("프로젝트 이름으로 검색한 결과 "+JSON.stringify(res.data));
+        return res.data;
+    }catch (error: any) {
+        console.log("검색실패"+error);
     }
-};
+
+}
 
 export const updateProjectRequest = async (projectId: number, dto: UpdateProjectDTO) => {
     const token = localStorage.getItem("accessToken");

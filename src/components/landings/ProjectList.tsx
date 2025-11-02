@@ -1,41 +1,74 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useProjectStore } from '@/store/projectStore';
 import { useUserStore } from '@/store/userStore';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { getMyProjectInfoRequest } from '@/api/requests/project';
+import {getMyTeamProjectDetailInfoRequest, getMyTeamProjectListRequest} from '@/api/requests/project';
 import { useRouter } from 'next/navigation';
 import { User, Info, FolderKanban } from 'lucide-react';
+import { useTeamStore } from '@/store/teamStore';
 
 export const ProjectList = () => {
     const { isLoggedIn } = useUserStore();
-    const { projects, addProject } = useProjectStore();
+    const { projects, addProject, setCurrentProjectId } = useProjectStore();
     const router = useRouter();
+    const currentTeamId = useTeamStore((s) => s.currentTeamId);
+    const fetchedRef = useRef(false);
 
     useEffect(() => {
-        if (!isLoggedIn) return;
+        if (!isLoggedIn) router.push('/login');
+    }, []);
+
+    useEffect(() => {
+        if (!isLoggedIn || !currentTeamId || fetchedRef.current) return;
+        fetchedRef.current = true;
 
         (async () => {
-            const data = await getMyProjectInfoRequest();
-            const { projectId, projectName, description, leader } = data || {};
-            if (projectId && projectName && !projects.some((p) => p.id === projectId)) {
-                addProject({
-                    id: projectId,
-                    name: projectName,
-                    description: description ?? '',
-                    leader: leader ?? '',
-                });
-            }
+            const data = await getMyTeamProjectListRequest(currentTeamId);
+
+            const list =
+                (Array.isArray(data?.projects) && data.projects) ||
+                (Array.isArray(data?.data?.projects) && data.data.projects) ||
+                [];
+
+            list.forEach((p: any) => {
+                const id = String(p.projectId ?? p.id ?? '');
+                const name = String(p.projectName ?? p.name ?? '');
+                const description = p.description ?? '';
+                const leader = p.leaderName ?? p.leader ?? '';
+
+                if (!id || !name) return;
+                if (!projects.some((proj) => String(proj.id) === id)) {
+                    addProject({ id, name, description, leader });
+                }
+            });
         })();
-    }, [addProject, projects, isLoggedIn]);
+    }, [isLoggedIn, currentTeamId]);
 
     if (!isLoggedIn) return null;
 
-    const handleJoin = (_publicId: string, name: string) => {
-        router.push(`/project/${encodeURIComponent(name)}/dashboard`);
+    const handleJoin = async (projectId: string, projectName : string) => {
+        if (!projectName && !projectName) return;
+        try {
+            const data = await getMyTeamProjectDetailInfoRequest(projectId);
+            if (!data) {
+                alert("Not data")
+                return;
+            }
+            const projectIdData : string = String(data.projectId ?? projectId);
+            const projectNameData: string = String(data.projectName ?? '').trim();
+            setCurrentProjectId(projectIdData);
+
+            router.push(`/project/${encodeURIComponent(projectNameData)}/dashboard`);
+
+        }
+        catch (error) {
+            console.error("Join실패이유 :: " + error);
+            return
+        }
     };
 
     return (
@@ -89,9 +122,7 @@ export const ProjectList = () => {
                                     <div className="mt-2 flex items-start gap-2 text-sm text-slate-500">
                                         <Info className="mt-0.5 h-4 w-4 shrink-0" />
                                         <p className="line-clamp-2">
-                                            {project.description
-                                                ? `description : ${project.description}`
-                                                : 'No description provided.'}
+                                            {project.description ? `description : ${project.description}` : 'No description provided.'}
                                         </p>
                                     </div>
                                 </div>
@@ -100,9 +131,11 @@ export const ProjectList = () => {
                                     <motion.button
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.97 }}
-                                        onClick={() => handleJoin(String(project.id), project.name)}
+                                        onClick={() => handleJoin(String(project.id), String(project.name))}
                                         className="rounded-xl px-6 py-2 text-sm font-medium text-white shadow-sm transition
-                                                   bg-gradient-to-r from-blue-600 to-indigo-600 hover:brightness-110 focus:outline-none
+                                                   bg-gradient-to-r from-blue-600 to-indigo-600
+                                                   hover:brightness-110
+                                                   focus:outline-none
                                                    focus-visible:ring-2 focus-visible:ring-blue-500"
                                     >
                                         Join

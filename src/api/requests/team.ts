@@ -1,50 +1,64 @@
 import apiClient from "@/api/Axios";
+import {Team, useTeamStore} from "@/store/teamStore";
 
-export type CreateTeamDTO = {
-    teamName: string | undefined;
+export interface CreateTeamDTO {
+    teamName?: string;
     description: string;
 }
 
-export const createTeamRequest = async (dto : CreateTeamDTO) => {
-
-    const res = await apiClient.post(
-        '/api/team/create',dto,
-    );
-    alert("성공");
-    return res.data;
+// 2. 서버 응답 타입 정의
+export interface TeamResponseItem {
+    teamId?: string | number;
+    id?: string | number;
+    teamName?: string;
+    name?: string;
+    description?: string;
 }
 
-export const getMyTeamInfoRequest = async () => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-        window.location.href = '/login';
-        return;
-    }
+export interface MyTeamResponse {
+    data?: {
+        teamList?: TeamResponseItem[];
+    };
+    teamList?: TeamResponseItem[];
+}
 
-    try {
-        const res = await apiClient.get('/api/team/list',{
-            headers: {Authorization: `Bearer ${token}`},
-        });
-        return res.data;
-    } catch (error : any) {
-        if (error.response && error.response.status === 401) {
-            window.location.href = '/login';
-        } else {
-            console.error('팀 정보 조회 실패:', error);
-            throw error;
-        }
-    }
+// 3. 팀 생성 요청
+export const createTeamRequest = async (dto: CreateTeamDTO) => {
+    const res = await apiClient.post("/api/team/create", dto);
+    return res.data;
+};
+
+// 4. 내 팀 리스트 요청
+export const getMyTeamInfoRequest = async (): Promise<Team[]> => {
+    const res = await apiClient.get<MyTeamResponse>("/api/team/my-team");
+    const payload = res.data;
+
+    const list =
+        (Array.isArray(payload?.data?.teamList) && payload.data!.teamList) ||
+        (Array.isArray(payload?.teamList) && payload.teamList) ||
+        [];
+
+    const teams: Team[] = list.map((t): Team => ({
+        id: String(t.teamId ?? t.id ?? ""),
+        teamName: t.teamName ?? t.name ?? "Unnamed Team",
+        description: t.description ?? "",
+    }));
+    return teams;
+};
+
+// 5. 팀 이름 중복 체크
+export interface CheckTeamNameResponse {
+    available: boolean;
 }
 
 export const checkTeamNameRequest = async (teamName: string): Promise<boolean> => {
     try {
-        const res = await apiClient.get('/api/team/check-team-name',
-            {
-                params: { teamName },
-            });
+        const res = await apiClient.get<CheckTeamNameResponse>("/api/team/check-team-name", {
+            params: { teamName },
+        });
         return res.data.available;
-    }catch (e) {
-        alert("error");
+    } catch (e) {
+        console.error("checkTeamNameRequest error:", e);
         return false;
     }
-}
+};
