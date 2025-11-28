@@ -41,10 +41,7 @@ export default function Login() {
             }
 
             const userInfo = await getCurrentUserRequest();
-
             login(userInfo, accessToken);
-
-            // 5) 메인으로 이동
             router.push('/');
         } catch (e: any) {
             console.error(e);
