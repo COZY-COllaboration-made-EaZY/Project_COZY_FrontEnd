@@ -16,7 +16,6 @@ export type CreateProjectDTO = {
     projectName: string;
     devInterest: string;
     description: string;
-    leaderName: string;
     githubUrl?: string;
     teamId: string;
 };
@@ -26,7 +25,6 @@ export type UpdateProjectDTO = {
     devInterest: string;
     description: string;
     githubUrl: string | null;
-    leaderName?: string;
 };
 
 export type ProjectSummary = {

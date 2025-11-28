@@ -13,8 +13,6 @@ export default function TeamLayoutSideBar({teamName} : {teamName: string}) {
         { label: 'TeamUserList', path: 'team-userlist' },
         { label: 'ProjectList', path: 'project-list' },
         { label: 'TeamSetting', path: 'team-setting' },
-        { label: 'TeamBoard', path: 'team-board' },
-        { label: 'TeamNotice', path: 'team-notice' },
         { label: 'TeamRequest', path: 'team-request' },
     ];
 

@@ -3,7 +3,7 @@ import Hero from '@/components/landings/Hero';
 
 export default function Home() {
   return (
-    <main className='mt-16 h-[calc(100dvh-64px)]'>
+    <main className='min-h-screen bg-gradient-to-br from-[#8B7CF6] via-[#AA92FF] to-[#6F63FF] pt-16'>
       <Hero />
       {/*<Feature />*/}
     </main>

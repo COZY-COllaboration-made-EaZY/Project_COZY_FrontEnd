@@ -1,7 +1,9 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+// src/store/userStore.ts
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import apiClient from "@/api/Axios";
 
-type User = {
+export type User = {
     id: number;
     email: string;
     nickname: string;
@@ -14,10 +16,11 @@ type UserState = {
     user: User | null;
     accessToken: string;
     isHydrated: boolean;
+
     setUser: (user: User, token?: string) => void;
-    updateProfileImage: (imageUrl: string) => void;
     login: (user: User, token: string) => void;
     setAccessToken: (token: string) => void;
+    updateProfileImage: (imageUrl: string) => void;
     logout: () => Promise<void>;
 };
 
@@ -26,68 +29,83 @@ export const useUserStore = create<UserState>()(
         (set) => ({
             isLoggedIn: false,
             user: null,
-            accessToken: '',
+            accessToken: "",
             isHydrated: false,
 
-            /** ✅ 유저 정보와 토큰을 동시에 설정 */
+            /** 유저 + 토큰 동시에 설정 */
             setUser: (user, token) => {
+                set({
+                    user,
+                    accessToken: token ?? "",
+                    isLoggedIn: true,
+                });
+
                 if (typeof window !== "undefined" && token) {
-                    localStorage.setItem('accessToken', token);
+                    localStorage.setItem("accessToken", token);
                 }
-                set({ user, accessToken: token ?? '', isLoggedIn: true });
             },
 
-            /** ✅ 프로필 이미지 변경 시 유저 객체 업데이트 */
-            updateProfileImage: (imageUrl) => {
-                set((state) => ({
-                    user: state.user ? { ...state.user, profileImage: imageUrl } : null,
-                }));
-            },
-
-            /** ✅ 로그인: 유저정보 + 액세스토큰 저장 */
+            /** 로그인: 유저 정보 + 액세스 토큰 저장 */
             login: (user, token) => {
-                if (typeof window !== "undefined") {
-                    localStorage.setItem('accessToken', token);
-                }
-                set({ isLoggedIn: true, user, accessToken: token });
-            },
+                set({
+                    isLoggedIn: true,
+                    user,
+                    accessToken: token,
+                });
 
-            /** ✅ 리프레시 성공 시 새로운 토큰만 갱신 (유저 정보 유지) */
-            setAccessToken: (token) => {
                 if (typeof window !== "undefined") {
                     localStorage.setItem("accessToken", token);
                 }
+            },
+
+            /** 리프레시 성공 시 토큰만 갱신 */
+            setAccessToken: (token) => {
                 set((state) => ({
+                    ...state,
                     accessToken: token,
-                    isLoggedIn: true,
-                    user: state.user, // 기존 유저 유지
+                    isLoggedIn: !!state.user || state.isLoggedIn,
                 }));
             },
 
-            /** ✅ 로그아웃: refresh 쿠키 제거 + 상태 초기화 */
+            /** 프로필 이미지 변경 */
+            updateProfileImage: (imageUrl) => {
+                set((state) => ({
+                    user: state.user
+                        ? { ...state.user, profileImage: imageUrl }
+                        : null,
+                }));
+            },
+
             logout: async () => {
                 try {
-                    await fetch("http://localhost:8000/api/auth/logout", {
-                        method: "POST",
-                        credentials: "include", // refresh 쿠키 삭제
-                    });
+                    await apiClient.delete("/api/auth/logout");
                 } catch (e) {
                     console.warn("Logout request failed:", e);
                 }
 
                 if (typeof window !== "undefined") {
-                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem("accessToken");
+                    localStorage.removeItem("refreshToken");
                 }
-                set({ isLoggedIn: false, user: null, accessToken: '' });
+
+                set({
+                    isLoggedIn: false,
+                    user: null,
+                    accessToken: "",
+                });
             },
+
         }),
         {
-            name: 'user-store',
-            partialize: (state: UserState) => ({
+            name: "user-store",
+            partialize: (state) => ({
                 isLoggedIn: state.isLoggedIn,
                 user: state.user,
                 accessToken: state.accessToken,
             }),
+            onRehydrateStorage: () => (state) => {
+                if (state) state.isHydrated = true;
+            },
         }
     )
 );

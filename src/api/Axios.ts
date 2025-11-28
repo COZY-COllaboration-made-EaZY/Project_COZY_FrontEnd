@@ -13,16 +13,25 @@ const apiClient: AxiosInstance = axios.create({
     withCredentials: true,
 });
 
+export const authClient = axios.create({
+    baseURL: API_BASE,
+    withCredentials: false,
+});
+
 const refreshClient = axios.create({
     baseURL: API_BASE,
     withCredentials: true,
 });
 
-// ----- Request: 최신 토큰 주입 -----
 apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     const headers = (config.headers ?? new AxiosHeaders()) as AxiosHeaders;
+    const isFormData = config.data instanceof FormData;
 
-    if (config.method?.toUpperCase() !== "GET" && !headers.has("Content-Type")) {
+    if (
+        config.method?.toUpperCase() !== "GET" &&
+        !headers.has("Content-Type") &&
+        !isFormData
+    ) {
         headers.set("Content-Type", "application/json");
     }
 
@@ -36,7 +45,6 @@ apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     return config;
 });
 
-// ----- Response: 401 → refresh → 재시도 -----
 let isRefreshing = false;
 let pendingQueue: Array<{
     resolve: (token: string) => void;
@@ -75,7 +83,7 @@ apiClient.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                const { data } = await refreshClient.post("/api/auth/refresh", {});
+                const { data } = await refreshClient.get("/api/auth/refresh", {});
                 const newAccess: string | undefined = (data as any)?.accessToken;
                 if (!newAccess) throw new Error("No accessToken from refresh");
 
@@ -85,10 +93,8 @@ apiClient.interceptors.response.use(
                     alert("🔄 Access Token has been refreshed successfully!");
                 }
 
-                // 대기 중 요청들 처리
                 processQueue(null, newAccess);
 
-                // 원 요청 재시도
                 original.headers = original.headers || {};
                 original.headers["Authorization"] = `Bearer ${newAccess}`;
                 return apiClient(original);

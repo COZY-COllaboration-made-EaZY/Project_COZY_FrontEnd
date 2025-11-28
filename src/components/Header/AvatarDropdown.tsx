@@ -14,8 +14,8 @@ export default function AvatarDropdown({ profileImage, nickname, status, handleL
     return (
         <DropdownMenuContent
             align="end"
-            className="w-72 border border-gray-300 bg-white rounded-lg p-4 shadow-none"
-            style={{ borderWidth: '1px' }} // ✅ 테두리 중복 방지
+            className="w-72 border border-white bg-[#8B7CF6] rounded-lg p-4 shadow-none"
+            style={{ borderWidth: '1px' }}
         >
             {/* TODO : 프로필 정보 */}
             <div className="flex flex-col items-center pb-4">
@@ -35,7 +35,7 @@ export default function AvatarDropdown({ profileImage, nickname, status, handleL
                     )}
                 </Avatar>
                 <div className="mt-2 text-center">
-                    <span className="font-semibold text-lg text-gray-900">{nickname}</span>
+                    <span className="font-semibold text-lg text-gray-900">{nickname}님</span>
                     <p className="text-sm text-gray-500">{status || "상태 메시지를 입력하세요"}</p>
                 </div>
             </div>

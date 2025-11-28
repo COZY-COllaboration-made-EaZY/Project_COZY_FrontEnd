@@ -1,116 +1,197 @@
 'use client';
 
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertTitle } from '@/components/ui/alert';
-import KakaoLogin from '@/components/login/KakaoLogin';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import GoogleLoginComponent, { clientId } from '@/components/login/GoogleLogin';
 import { useUserStore } from '@/store/userStore';
-import {loginRequest} from "@/api/requests/login";
-import {getCurrentUserRequest} from "@/api/requests/info";
+import { loginRequest } from '@/api/requests/login';
+import { getCurrentUserRequest } from '@/api/requests/info';
+import axios from "axios";
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const router = useRouter();
-  const { login } = useUserStore();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const router = useRouter();
+    const { login, isLoggedIn, setAccessToken } = useUserStore();
 
-  const { isLoggedIn } = useUserStore();
+    useEffect(() => {
+        if (isLoggedIn) {
+            router.push('/');
+        }
+    }, [isLoggedIn, router]);
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      router.push('/');
-    }
-  },[isLoggedIn, router]);
+    const handleLogin = async () => {
+        setError('');
+        setLoading(true);
 
-  const handleLogin = async () => {
-    const tokens = await loginRequest(email, password);
-    if (!tokens) {
-      setError("아이디 혹은 비밀번호가 틀렸습니다.");
-      return;
-    }
+        try {
+            const { accessToken } = await loginRequest(email, password);
 
-    const userInfo = await getCurrentUserRequest();
-    if (userInfo) {
-      login(userInfo, tokens.accessToken);
-      router.push('/');
-    } else {
-      setError("유저 정보를 불러오지 못했습니다.");
-    }
-  };
+            setAccessToken(accessToken);
+            if (typeof window !== "undefined") {
+                localStorage.setItem("accessToken", accessToken);
+            }
+
+            const userInfo = await getCurrentUserRequest();
+
+            login(userInfo, accessToken);
+
+            // 5) 메인으로 이동
+            router.push('/');
+        } catch (e: any) {
+            console.error(e);
+
+            if (axios.isAxiosError(e) && e.response?.status === 401) {
+                setError('아이디 혹은 비밀번호가 틀렸습니다.');
+            } else {
+                setError('로그인 중 오류가 발생했습니다.');
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
+    return (
+        <div className="flex min-h-screen items-center justify-center bg-[#7d6bff]">
+            <div className={"flex flex-col justify-center pl-20"}>
+                <h1 className="text-5xl font-extrabold text-gray-800 leading-snug max-w-xl">
+                    Collaborate easier and faster —
+                    <span className="text-blue-600"> with COZY.</span>
+                </h1>
 
-
-
-
-  return (
-      <div className='flex min-h-screen items-center justify-center bg-gray-100'>
-        <Card className='w-full max-w-md p-6 shadow-lg bg-white rounded-lg'>
-          <CardHeader>
-            <CardTitle className='text-center text-gray-800 text-2xl font-bold'>로그인</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className='space-y-4'>
-              <div>
-                <Label htmlFor='email' className='text-gray-700'>이메일</Label>
-                <Input
-                    id='email'
-                    type='email'
-                    placeholder='이메일을 입력하세요'
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-
-              {/* 비밀번호 입력 */}
-              <div>
-                <Label htmlFor='password' className='text-gray-700'>비밀번호</Label>
-                <Input
-                    id='password'
-                    type='password'
-                    placeholder='비밀번호를 입력하세요'
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-
-              {/* 로그인 실패  */}
-              {error && (
-                  <Alert variant='destructive' className="border-red-500 bg-red-100 text-red-800 px-4 py-2 w-full whitespace-nowrap overflow-auto">
-                    <AlertTitle className="font-bold">오류</AlertTitle>
-                    <p className="text-sm">{error}</p>
-                  </Alert>
-              )}
-
-              {/* 로그인 버튼 */}
-              <Button className='w-full bg-blue-600 hover:bg-blue-700 text-white py-2' onClick={handleLogin}>
-                로그인
-              </Button>
-
-              {/* 카카오 로그인 */}
-              <KakaoLogin />
-
-              {/* 구글 로그인 */}
-              <GoogleOAuthProvider clientId={clientId}>
-                <GoogleLoginComponent />
-              </GoogleOAuthProvider>
+                <p className="mt-6 text-xl text-gray-600 max-w-lg">
+                    Manage team projects, schedules, and documents — all in one place.
+                </p>
             </div>
 
-            {/* 회원가입 링크 */}
-            <div className='mt-4 text-center'>
-              <p className='text-gray-600'>
-                계정이 없으신가요? <a href='/signup' className='underline text-blue-600'>회원가입</a>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-  );
+            <Card
+                className="
+                    w-full max-w-md
+                    border border-white/40
+                    bg-white/10
+                    shadow-2xl
+                    rounded-2xl
+                    backdrop-blur-md
+                    text-white
+                "
+            >
+                <CardHeader className="pb-4">
+                    <CardTitle className="text-center text-2xl font-semibold tracking-wide">
+                        Login
+                    </CardTitle>
+                </CardHeader>
+
+                <CardContent className="space-y-5">
+                    {/* 이메일 */}
+                    <div className="space-y-2">
+                        <Label htmlFor="email" className="text-sm text-white/80">
+                            Email
+                        </Label>
+                        <Input
+                            id="email"
+                            type="email"
+                            placeholder="Please input email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="
+                                border border-white/30
+                                bg-white/10
+                                text-white
+                                placeholder:text-white/60
+                                focus-visible:ring-white
+                                focus-visible:ring-1
+                                focus-visible:border-white
+                            "
+                        />
+                    </div>
+
+                    {/* 비밀번호 */}
+                    <div className="space-y-2">
+                        <Label htmlFor="password" className="text-sm text-white/80">
+                            Password
+                        </Label>
+                        <Input
+                            id="password"
+                            type="password"
+                            placeholder="Please input password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="
+                                border border-white/30
+                                bg-white/10
+                                text-white
+                                placeholder:text-white/60
+                                focus-visible:ring-white
+                                focus-visible:ring-1
+                                focus-visible:border-white
+                            "
+                        />
+                    </div>
+
+                    {/* 에러 메시지 */}
+                    {error && (
+                        <Alert
+                            variant="destructive"
+                            className="
+                                border-red-300 bg-red-500/20 text-red-100
+                                px-4 py-2
+                            "
+                        >
+                            <AlertTitle className="font-bold">오류</AlertTitle>
+                            <p className="text-sm">{error}</p>
+                        </Alert>
+                    )}
+
+                    {/* 로그인 버튼 */}
+                    <Button
+                        className="
+                            mt-2 w-full
+                            rounded-xl
+                            bg-white/90
+                            text-[#7d6bff]
+                            font-semibold
+                            hover:bg-white
+                            transition
+                        "
+                        onClick={handleLogin}
+                        disabled={loading}
+                    >
+                        {loading ? '로그인 중...' : 'Login'}
+                    </Button>
+
+                    {/* 구글 로그인 */}
+                    <div
+                        className="mt-3"
+                        style={{
+                            color: "black",
+                            fontWeight: "600",
+                        }}
+                    >
+                        <GoogleOAuthProvider clientId={clientId}>
+                            <div className="google-login-wrapper">
+                                <GoogleLoginComponent />
+                            </div>
+                        </GoogleOAuthProvider>
+                    </div>
+
+                    {/* 회원가입 링크 */}
+                    <div className="mt-4 text-center text-sm text-white/80">
+                        계정이 없으신가요?{' '}
+                        <a href="/signup" className="underline text-white">
+                            회원가입
+                        </a>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    );
 }
