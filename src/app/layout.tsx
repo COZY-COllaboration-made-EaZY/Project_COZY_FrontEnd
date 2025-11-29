@@ -2,6 +2,7 @@ import './globals.css';
 import localFont from 'next/font/local';
 import React from "react";
 import ClientWrapper from "@/components/common/ClientWrapper";
+import "../i18n";
 
 const pretendard = localFont({
     src: '../fonts/PretendardVariable.woff2',
@@ -12,7 +13,7 @@ const pretendard = localFont({
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="ko">
+        <html lang="en">
         <body className={pretendard.className}>
         <ClientWrapper>
             {children}

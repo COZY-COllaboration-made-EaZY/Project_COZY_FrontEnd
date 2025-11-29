@@ -1,0 +1,18 @@
+{
+  "menu": {
+    "myinfo": "내 정보",
+    "settings": "설정",
+    "logout": "로그아웃",
+    "language": "언어"
+  },
+  "locale": {
+    "korean": "한국어",
+    "english": "영어",
+    "japanese": "일본어"
+  },
+  "nav": {
+    "feature": "기능",
+    "recruit": "모집",
+    "inquiry": "문의"
+  }
+}

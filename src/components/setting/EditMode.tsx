@@ -8,7 +8,6 @@ type EditProps = {
         description: string;
         devInterest: string;
         gitHubUrl: string | null;
-        leaderName: string; // ← UUID 대신 이름
     };
     onCancel: () => void;
     onSave: (dto: UpdateProjectDTO) => Promise<void>;
@@ -25,7 +24,6 @@ export default function EditMode({ initial, onCancel, onSave }: EditProps) {
         INTEREST_OPTIONS.includes(initial.devInterest) ? initial.devInterest : ""
     );
     const [gitHubUrl, setGitHubUrl]             = useState(initial.gitHubUrl || "");
-    const [leaderName, setLeaderName]     = useState(initial.leaderName || "");
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -36,7 +34,6 @@ export default function EditMode({ initial, onCancel, onSave }: EditProps) {
             devInterest,
             description,
             gitHubUrl,
-            leaderName,
         });
     };
 
@@ -75,11 +72,6 @@ export default function EditMode({ initial, onCancel, onSave }: EditProps) {
                             <label className="self-center text-stone-500">Git URL</label>
                             <input value={gitHubUrl} onChange={e=>setGitHubUrl(e.target.value)}
                                    placeholder="https://github.com/..."
-                                   className="w-full rounded-md border border-stone-300 bg-white px-3 py-2 outline-none focus:border-stone-500 focus:ring-2 focus:ring-stone-300"/>
-
-                            <label className="self-center text-stone-500">Leader Name</label>
-                            <input value={leaderName} onChange={e=>setLeaderName(e.target.value)}
-                                   placeholder="이름"
                                    className="w-full rounded-md border border-stone-300 bg-white px-3 py-2 outline-none focus:border-stone-500 focus:ring-2 focus:ring-stone-300"/>
                         </div>
                     </div>

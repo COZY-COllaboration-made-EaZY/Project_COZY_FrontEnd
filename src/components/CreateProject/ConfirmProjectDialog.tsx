@@ -6,7 +6,6 @@ interface ConfirmData {
     projectName: string;
     devInterest: string;
     description: string;
-    leaderName: string;
     gitHubUrl?: string | null;
 }
 
@@ -47,7 +46,6 @@ export default function ConfirmProjectDialog({
 
     const hasProjectName = !!data.projectName?.trim();
     const hasInterest = !!data.devInterest?.trim();
-    const hasLeader = !!data.leaderName?.trim();
     const hasDesc = !!data.description?.trim();
     const rawGit = (data.gitHubUrl ?? '').trim();
     const git = rawGit.toLowerCase() === '(none)' ? '' : rawGit;
@@ -55,7 +53,7 @@ export default function ConfirmProjectDialog({
     const hasGit = git.length > 0;
     const githubValid = !hasGit || GH_REGEX.test(git);
 
-    const allValid = hasProjectName && hasInterest && hasLeader && hasDesc && githubValid;
+    const allValid = hasProjectName && hasInterest && hasDesc && githubValid;
     const canConfirm = allValid && agree && !loading;
 
     const Check = ({ ok }: { ok: boolean }) => (
@@ -109,13 +107,6 @@ export default function ConfirmProjectDialog({
                         <p className="font-semibold">{data.devInterest}</p>
                     </div>
 
-                    <div className="rounded-xl border border-gray-200 p-3">
-                        <p className="text-xs text-gray-500">Leader Nickname</p>
-                        <p className="mt-1 break-words font-semibold text-gray-900">
-                            {data.leaderName}
-                        </p>
-                    </div>
-
                     <div className="rounded-xl border border-gray-200 p-3 sm:col-span-2">
                         <p className="text-xs text-gray-500">Description</p>
                         <div className="mt-1 max-h-48 overflow-auto whitespace-pre-wrap text-gray-900">
@@ -150,10 +141,6 @@ export default function ConfirmProjectDialog({
                         <li className="flex items-center gap-2">
                             <Check ok={hasInterest} />
                             <span>작업 타입(Interest)이 선택되었습니다.</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                            <Check ok={hasLeader} />
-                            <span>리더 닉네임이 확인되었습니다.</span>
                         </li>
                         <li className="flex items-center gap-2">
                             <Check ok={hasDesc} />

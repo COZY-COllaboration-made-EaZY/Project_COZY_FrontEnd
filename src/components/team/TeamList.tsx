@@ -24,7 +24,6 @@ export function TeamList() {
                 setLoading(true);
                 setErrMsg(null);
 
-                // ✅ 서버에서 이미 Team[] 형태로 반환
                 const data = await getMyTeamInfoRequest();
                 setTeams(
                     data.filter(t => t.id && t.id.trim() !== "")
@@ -77,34 +76,33 @@ export function TeamList() {
             {/* 팀이 있을 때 */}
             {!loading && !errMsg && teams.length > 0 && (
                 <>
-                    <h2 className="text-5xl font-bold mb-6 text-gray-700">
+                    <h2 className="text-5xl font-bold mb-6 text-white">
                         I’m waiting for you.
                     </h2>
 
                     <div className="space-y-5">
                         <div className="text-center">
-                            <h3 className="text-xl font-bold mb-2">Team List</h3>
+                            <h3 className="text-xl font-bold mb-2 text-white">Team List</h3>
                         </div>
 
+                        {/*Team List Array*/}
                         {teams.map((team: Team, index: number) => (
                             <div
                                 key={team.id}
-                                className="flex items-center justify-between gap-4 rounded-xl border p-4 text-left shadow-sm"
+                                onClick={() => setCurrentTeamId(team.id)}
+                                className="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-white p-4 text-left shadow-sm hover:bg-purple-200 transition
+                                "
                             >
-                                <div>
-                                    <div className="font-semibold text-slate-800">
+                                <Link
+                                    href={`/team/${encodeURIComponent(team.teamName)}/dashboard`}
+                                    className="flex-1"
+                                >
+                                    <div className="font-semibold text-center text-white">
                                         {index + 1}. {team.teamName}
                                     </div>
                                     <div className="text-sm text-slate-600">
                                         {team.description}
                                     </div>
-                                </div>
-                                <Link
-                                    href={`/team/${encodeURIComponent(team.teamName)}/dashboard`}
-                                    onClick={() => setCurrentTeamId(team.id)}
-                                    className="flex items-center justify-center h-9 px-5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
-                                >
-                                    Join
                                 </Link>
                             </div>
                         ))}

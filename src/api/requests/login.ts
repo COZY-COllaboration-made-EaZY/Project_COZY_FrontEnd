@@ -1,36 +1,28 @@
-import apiClient from "@/api/Axios";
+import apiClient, {authClient} from "@/api/Axios";
 import {useUserStore} from "@/store/userStore";
+
+export type LoginResponse = {
+    accessToken: string;
+    refreshToken?: string; // 쿠키로도 관리한다면 여기 값이 안 올 수도 있음
+};
 
 export const loginRequest = async (
     email: string,
     password: string
-): Promise<{ accessToken: string; refreshToken: string } | undefined> => {
-    try {
-        const response = await apiClient.post('/api/auth/login', { email, password });
-        const { accessToken, refreshToken } = response.data;
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
-        return { accessToken, refreshToken };
-    } catch (error: any) {
-        return undefined;
-    }
+): Promise<LoginResponse> => {
+    const res = await apiClient.post<LoginResponse>("/api/auth/login", {
+        email,
+        password,
+    });
+    return res.data;
 };
 
 // 비밀번호 검증
 export const verifyPasswordRequest = async (password: string) => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) throw new Error("인증 토큰이 없습니다.");
-
     try {
         const response = await apiClient.post(
-            '/api/auth/verify-password',
+            '/api/user/verify-password',
             { password },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            }
         );
         return response.data;
     } catch (error: any) {
@@ -42,20 +34,12 @@ export const verifyPasswordRequest = async (password: string) => {
 
 // 로그아웃
 export const logoutRequest = async () => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-        useUserStore.getState().logout();
-        return;
-    }
-
     try {
-        await apiClient.post('/api/auth/logout', null, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+        await apiClient.post("/api/auth/logout");
     } catch (error: any) {
-        console.log("로그아웃 문제있다.")
+        console.error("로그아웃 문제있다.", error?.message || error);
     } finally {
-        useUserStore.getState().logout();
+        await useUserStore.getState().logout();
         alert("logout success");
     }
 };

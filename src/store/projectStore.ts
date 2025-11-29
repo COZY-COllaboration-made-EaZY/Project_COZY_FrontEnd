@@ -21,9 +21,9 @@ type ProjectState = {
 
 export const useProjectStore = create<ProjectState>()(
     persist(
-        (set, get) => ({
+        (set) => ({
             projects: [],
-            currentProjectId: null, // 초기값 null 권장
+            currentProjectId: null,
             hasHydrated: false,
             setHasHydrated: (v) => set({ hasHydrated: v }),
             setCurrentProjectId: (id) => set({ currentProjectId: id }),

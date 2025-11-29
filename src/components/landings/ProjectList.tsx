@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import {getMyTeamProjectDetailInfoRequest, getMyTeamProjectListRequest} from '@/api/requests/project';
 import { useRouter } from 'next/navigation';
-import { User, Info, FolderKanban } from 'lucide-react';
+import { Info, FolderKanban } from 'lucide-react';
 import { useTeamStore } from '@/store/teamStore';
 
 export const ProjectList = () => {
@@ -38,11 +38,10 @@ export const ProjectList = () => {
                 const id = String(p.projectId ?? p.id ?? '');
                 const name = String(p.projectName ?? p.name ?? '');
                 const description = p.description ?? '';
-                const leader = p.leaderName ?? p.leader ?? '';
 
                 if (!id || !name) return;
                 if (!projects.some((proj) => String(proj.id) === id)) {
-                    addProject({ id, name, description, leader });
+                    addProject({ id, name, description });
                 }
             });
         })();
@@ -112,11 +111,6 @@ export const ProjectList = () => {
                                         <p className="truncate text-base font-semibold text-slate-900">
                                             ProjectName : {project.name}
                                         </p>
-                                    </div>
-
-                                    <div className="mt-1 flex items-center gap-2 text-sm text-slate-600">
-                                        <User className="h-4 w-4" />
-                                        <span className="truncate">Leader : {project.leader || '-'}</span>
                                     </div>
 
                                     <div className="mt-2 flex items-start gap-2 text-sm text-slate-500">

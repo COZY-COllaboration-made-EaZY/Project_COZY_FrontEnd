@@ -43,7 +43,6 @@ export default function GithubPage() {
                 projectName,
                 devInterest,
                 description,
-                leaderName: user.nickname,
                 githubUrl: finalUrl ?? undefined,
                 teamId:String(currentTeamId),
             });
@@ -166,7 +165,6 @@ export default function GithubPage() {
                     projectName,
                     devInterest,
                     description,
-                    leaderName: user?.nickname || '',
                     gitHubUrl: githubUrl || '(none)',
                 }}
             />

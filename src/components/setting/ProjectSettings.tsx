@@ -92,7 +92,6 @@ export default function ProjectSettings() {
                 description: detail.description,
                 devInterest: detail.devInterest,
                 gitHubUrl: detail.gitHubUrl,
-                leaderName: detail.ownerName,
             }}
             onCancel={() => setMode("view")}
             onSave={handleSave}

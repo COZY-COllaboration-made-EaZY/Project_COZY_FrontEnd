@@ -9,15 +9,37 @@ import { useRouter } from 'next/navigation';
 import { useUserStore } from '@/store/userStore';
 import Image from 'next/image';
 import {logoutRequest} from "@/api/requests/login";
+import {useLocaleStore} from "@/store/useLocalStore";
+import {Locale, LOCALE} from "@/enum/locale";
+import {useTranslation} from "react-i18next";
+import i18n from "i18next";
 
 export default function AvatarMenu() {
     const router = useRouter();
     const { isLoggedIn, user, logout } = useUserStore();
     const [isOpen, setIsOpen] = useState(false);
+    const { locale, setLocale } = useLocaleStore();
+    const {t} = useTranslation();
+
+    const cycleLanguage = () => {
+        const order: Locale[] = [LOCALE.EN, LOCALE.KO, LOCALE.JA];
+        const currentIndex = order.indexOf(locale);
+        const nextIndex = (currentIndex + 1) % order.length;
+        const nextLocale = order[nextIndex];
+
+        setLocale(nextLocale);
+    };
+
+    const languageLabel =
+        locale === LOCALE.KO
+            ? t("locale.korean")
+            : locale === LOCALE.EN
+                ? t("locale.english")
+                : t("locale.japanese");
 
     const handleLogout = async () => {
         await logoutRequest();
-        logout();
+        await logout();
         setIsOpen(false);
         router.push('/login');
     };
@@ -48,11 +70,11 @@ export default function AvatarMenu() {
                     </div>
                 ) : (
                     <Button
-                        variant='outline'
-                        className='px-4 py-2 rounded-md'
+                        variant="outline"
+                        className="px-4 py-2 rounded-full border border-white/70 bg-white/10 text-gray-800 font-semibold hover:bg-white/20 transition "
                         onClick={() => router.push('/login')}
                     >
-                        로그인 해주세요
+                        Login
                     </Button>
                 )}
             </DropdownMenuTrigger>
@@ -63,7 +85,6 @@ export default function AvatarMenu() {
                     className="w-72 p-4 bg-white rounded-xl shadow-lg border border-gray-200"
                     onPointerDownOutside={() => setIsOpen(false)}
                 >
-                    {/* 🔹 프로필 정보 */}
                     <div className="flex flex-col items-center">
                         <Avatar className="h-16 w-16 mb-2">
                             {profileImageSrc ? (
@@ -76,38 +97,41 @@ export default function AvatarMenu() {
                         </Avatar>
                         <span className="font-semibold text-lg text-gray-900">{user?.nickname}</span>
                         <span className="text-sm text-gray-500">
-                            {user?.statusMessage || "상태 메시지를 입력하세요"}
+                            {user?.statusMessage || "Not input statusMessage"}
                         </span>
                     </div>
 
-                    {/* 🔹 구분선 */}
                     <div className="border-t border-gray-200 my-3"/>
 
-                    {/* 🔹 버튼 영역 (2x2 그리드) */}
                     <div className="grid grid-cols-2 gap-3">
                         <DropdownMenuItem asChild>
                             <Link href='/myinfo'
                                   className="flex items-center justify-center p-3 rounded-lg bg-gray-100 hover:bg-gray-200 font-semibold">
-                                내 정보
+                                {t("menu.myinfo")}
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                             <Link href='/settings'
-                                  className="flex items-center justify-center p-3 rounded-lg bg-gray-100 hover:bg-gray-200 font-semibold">
-                                설정
-                            </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                            <Link href='/participation'
-                                  className="flex items-center justify-center p-3 rounded-lg bg-gray-100 hover:bg-gray-200 font-semibold">
-                                나의 참여
+                                  className="flex items-center justify-center p-3 rounded-lg bg-gray-100 hover:bg-gray-200 text-blue-600 font-semibold">
+                                {t("menu.settings")}
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             onSelect={handleLogout}
                             className="flex items-center justify-center p-3 rounded-lg bg-gray-100 hover:bg-red-100 text-red-600 font-semibold"
                         >
-                            로그아웃
+                            {t("menu.logout")}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onSelect={(e) => {
+                                e.preventDefault();
+                                cycleLanguage();
+                            }}
+                            className={"flex flex-col items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 font-semibold"}>
+                            <span className={"text-sm"}>Language</span>
+                            <span className={"text-xs text-gray-500"}>
+                                {languageLabel}
+                            </span>
                         </DropdownMenuItem>
                     </div>
                 </DropdownMenuContent>
