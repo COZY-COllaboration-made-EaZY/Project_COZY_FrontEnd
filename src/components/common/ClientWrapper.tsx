@@ -13,7 +13,6 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
             <LocaleSync />
             <Header />
             <main className="pt-[64px]">
-
                 {children}
             </main>
         </>
