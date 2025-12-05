@@ -36,6 +36,7 @@ export const verifyPasswordRequest = async (password: string) => {
 export const logoutRequest = async () => {
     try {
         await apiClient.post("/api/auth/logout");
+        localStorage.clear();
     } catch (error: any) {
         console.error("로그아웃 문제있다.", error?.message || error);
     } finally {
