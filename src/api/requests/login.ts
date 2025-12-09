@@ -25,7 +25,6 @@ export const verifyPasswordRequest = async (password: string) => {
         return response.data;
     } catch (error: any) {
         console.error("비밀번호 검증 실패:", error.message);
-        alert("비밀번호 검증 실패");
         return false;
     }
 };
