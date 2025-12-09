@@ -34,11 +34,7 @@ export default function Login() {
 
         try {
             const { accessToken } = await loginRequest(email, password);
-
             setAccessToken(accessToken);
-            if (typeof window !== "undefined") {
-                localStorage.setItem("accessToken", accessToken);
-            }
 
             const userInfo = await getCurrentUserRequest();
             login(userInfo, accessToken);

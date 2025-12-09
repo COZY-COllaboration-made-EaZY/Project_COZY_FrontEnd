@@ -8,7 +8,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useUserStore } from '@/store/userStore';
 import Image from 'next/image';
-import {logoutRequest} from "@/api/requests/login";
 import {useLocaleStore} from "@/store/useLocalStore";
 import {Locale, LOCALE} from "@/enum/locale";
 import {useTranslation} from "react-i18next";
@@ -38,7 +37,6 @@ export default function AvatarMenu() {
                 : t("locale.japanese");
 
     const handleLogout = async () => {
-        await logoutRequest();
         await logout();
         setIsOpen(false);
         router.push('/login');

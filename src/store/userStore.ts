@@ -17,7 +17,7 @@ type UserState = {
     accessToken: string;
     isHydrated: boolean;
 
-    setUser: (user: User, token?: string) => void;
+    setUser: (user: User | null) => void;
     login: (user: User, token: string) => void;
     setAccessToken: (token: string) => void;
     updateProfileImage: (imageUrl: string) => void;
@@ -32,42 +32,28 @@ export const useUserStore = create<UserState>()(
             accessToken: "",
             isHydrated: false,
 
-            /** 유저 + 토큰 동시에 설정 */
-            setUser: (user, token) => {
-                set({
+            setUser: (user) => {
+                set((state) => ({
                     user,
-                    accessToken: token ?? "",
-                    isLoggedIn: true,
-                });
-
-                if (typeof window !== "undefined" && token) {
-                    localStorage.setItem("accessToken", token);
-                }
+                    isLoggedIn: user ? true : state.isLoggedIn && !!state.accessToken,
+                }));
             },
 
-            /** 로그인: 유저 정보 + 액세스 토큰 저장 */
             login: (user, token) => {
                 set({
                     isLoggedIn: true,
                     user,
                     accessToken: token,
                 });
-
-                if (typeof window !== "undefined") {
-                    localStorage.setItem("accessToken", token);
-                }
             },
 
-            /** 리프레시 성공 시 토큰만 갱신 */
             setAccessToken: (token) => {
                 set((state) => ({
-                    ...state,
                     accessToken: token,
-                    isLoggedIn: !!state.user || state.isLoggedIn,
+                    isLoggedIn: !!token && (state.isLoggedIn || !!state.user),
                 }));
             },
 
-            /** 프로필 이미지 변경 */
             updateProfileImage: (imageUrl) => {
                 set((state) => ({
                     user: state.user
@@ -81,11 +67,6 @@ export const useUserStore = create<UserState>()(
                     await apiClient.post("/api/auth/logout");
                 } catch (e) {
                     console.warn("Logout request failed:", e);
-                }
-
-                if (typeof window !== "undefined") {
-                    localStorage.removeItem("accessToken");
-                    localStorage.removeItem("refreshToken");
                 }
 
                 set({

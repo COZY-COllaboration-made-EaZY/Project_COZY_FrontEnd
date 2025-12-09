@@ -1,4 +1,4 @@
-// 프로젝트 이름 중복 확인
+﻿// 프로젝트 이름 중복 확인
 import apiClient from "@/api/Axios";
 
 export type ProjectDetail = {
@@ -99,21 +99,11 @@ export const getMyTeamProjectDetailInfoRequest = async (projectId : string) => {
 }
 
 export const updateProjectRequest = async (projectId: number, dto: UpdateProjectDTO) => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) throw new Error("인증 토큰이 없습니다.");
-
-    const res = await apiClient.put(`/api/project/${projectId}`, dto, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
+    const res = await apiClient.put(`/api/project/${projectId}`, dto);
     return res.data;
 };
 
 // 삭제
 export const deleteProjectRequest = async (projectId: number) => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) throw new Error("인증 토큰이 없습니다.");
-
-    await apiClient.delete(`/api/project/${projectId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
+    await apiClient.delete(`/api/project/${projectId}`);
 };
