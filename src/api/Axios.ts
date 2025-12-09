@@ -83,7 +83,7 @@ apiClient.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                const { data } = await refreshClient.get("/api/auth/refresh", {});
+                const { data } = await refreshClient.post("/api/auth/refresh", {});
                 const newAccess: string | undefined = (data as any)?.accessToken;
                 if (!newAccess) throw new Error("No accessToken from refresh");
 

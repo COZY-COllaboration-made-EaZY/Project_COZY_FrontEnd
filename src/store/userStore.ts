@@ -78,7 +78,7 @@ export const useUserStore = create<UserState>()(
 
             logout: async () => {
                 try {
-                    await apiClient.delete("/api/auth/logout");
+                    await apiClient.post("/api/auth/logout");
                 } catch (e) {
                     console.warn("Logout request failed:", e);
                 }
