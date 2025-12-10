@@ -35,11 +35,7 @@ apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
         headers.set("Content-Type", "application/json");
     }
 
-    const storeToken = useUserStore.getState().accessToken;
-    const lsToken =
-        typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
-    const token = storeToken ?? lsToken;
-
+    const token = useUserStore.getState().accessToken;
     if (token) headers.set("Authorization", `Bearer ${token}`);
     config.headers = headers;
     return config;
@@ -83,15 +79,11 @@ apiClient.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                const { data } = await refreshClient.get("/api/auth/refresh", {});
+                const { data } = await refreshClient.post("/api/auth/refresh", {});
                 const newAccess: string | undefined = (data as any)?.accessToken;
                 if (!newAccess) throw new Error("No accessToken from refresh");
 
                 useUserStore.getState().setAccessToken(newAccess);
-                if (typeof window !== "undefined") {
-                    localStorage.setItem("accessToken", newAccess);
-                    alert("🔄 Access Token has been refreshed successfully!");
-                }
 
                 processQueue(null, newAccess);
 

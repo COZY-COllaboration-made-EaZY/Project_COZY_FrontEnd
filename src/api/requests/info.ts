@@ -3,7 +3,7 @@ import {useUserStore} from "@/store/userStore";
 
 export const getCurrentUserRequest = async (): Promise<any | undefined> => {
     try {
-        const response = await apiClient.get('/api/user/current-user');
+        const response = await apiClient.get('/api/user/check-current');
         return response.data;
     } catch (error: any) {
         console.error("유저 정보 조회 실패:", error?.message || error);
@@ -14,15 +14,15 @@ export const getCurrentUserRequest = async (): Promise<any | undefined> => {
 export const updateUserInfoRequest = async (
     nickname: string,
     statusMessage: string,
-    profileImage?: File
+    // profileImage?: File
 ) => {
     const formData = new FormData();
     formData.append("nickname", nickname);
     formData.append("statusMessage", statusMessage);
-    if (profileImage) {
-        formData.append("profileImage", profileImage);
-    }
+    // if (profileImage) {
+    //     formData.append("profileImage", profileImage);
+    // }
 
-    const response = await apiClient.post("/api/user/update-info", formData);
+    const response = await apiClient.post("/api/user/update", formData);
     return response.data;
 };

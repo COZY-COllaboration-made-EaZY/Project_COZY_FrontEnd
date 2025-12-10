@@ -42,14 +42,14 @@ export default function ProfileEdit({ user, setUser, onCancel, onSave }: any) {
                 return;
             }
 
-            await updateUserInfoRequest(
+            const refreshedUser = await updateUserInfoRequest(
                 nickname,
                 statusMessage,
-                profileImage ?? undefined
+                // profileImage ?? undefined
             );
 
             // ✅ 최신 정보 다시 받아오기
-            const refreshedUser = await getCurrentUserRequest();
+            // const refreshedUser = await getCurrentUserRequest();
 
             setUser(refreshedUser);
 

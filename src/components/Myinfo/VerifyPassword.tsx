@@ -8,7 +8,7 @@ export default function VerifyPassword({ onVerify }: { onVerify: () => void }) {
     const handleVerifyPassword = async () => {
         try {
             const result = await verifyPasswordRequest(password);
-            if (result.valid) {
+            if (result.isValid) {
                 onVerify();
             } else {
                 setError('Incorrect password.');
