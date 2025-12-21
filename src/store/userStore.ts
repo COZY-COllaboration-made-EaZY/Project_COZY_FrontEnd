@@ -1,7 +1,6 @@
-// src/store/userStore.ts
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import apiClient from "@/api/Axios";
+import apiClient, {authClient} from "@/api/Axios";
 
 export type User = {
     id: number;
@@ -64,7 +63,7 @@ export const useUserStore = create<UserState>()(
 
             logout: async () => {
                 try {
-                    await apiClient.post("/api/auth/logout");
+                    await authClient.post("/api/auth/logout");
                 } catch (e) {
                     console.warn("Logout request failed:", e);
                 }

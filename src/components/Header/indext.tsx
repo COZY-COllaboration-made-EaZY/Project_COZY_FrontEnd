@@ -51,7 +51,7 @@ export default function Header() {
                         </Link>
 
                         <Link
-                            href="/inquiry"
+                            href="/help"
                             className="
                                 px-3 py-1 rounded-lg text-sm
                                 font-semibold text-white/90
@@ -59,7 +59,7 @@ export default function Header() {
                                 drop-shadow
                     "
                         >
-                            {t("nav.inquiry")}
+                            {t("nav.help")}
                         </Link>
                     </nav>
                 </div>
