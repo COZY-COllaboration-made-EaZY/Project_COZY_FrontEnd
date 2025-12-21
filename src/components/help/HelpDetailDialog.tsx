@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
-type Inquiry = {
+type Help = {
     id: number;
     type: string;
     status: string;
@@ -12,41 +13,44 @@ type Inquiry = {
 };
 
 interface Props {
-    inquiry: Inquiry | null;
+    help: Help | null;
     username: string;
     onClose: () => void;
     onSave: (id: number, title: string, content: string) => Promise<void>;
     onDelete: (id: number) => Promise<void>;
 }
 
-export default function InquiryDetailDialog({
-                                                inquiry,
-                                                username,
-                                                onClose,
-                                                onSave,
-                                                onDelete,
-                                            }: Props) {
+export default function HelpDetailDialog({
+                                             help,
+                                             username,
+                                             onClose,
+                                             onSave,
+                                             onDelete,
+                                         }: Props) {
     const [isEditing, setIsEditing] = useState(false);
-    const [editTitle, setEditTitle] = useState(inquiry?.title ?? "");
-    const [editContent, setEditContent] = useState(inquiry?.content ?? "");
+    const [editTitle, setEditTitle] = useState(help?.title ?? "");
+    const [editContent, setEditContent] = useState(help?.content ?? "");
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const { t } = useTranslation();
 
-    if (!inquiry) return null;
+    if (!help) return null;
 
     const handleSave = async () => {
         setSaving(true);
-        await onSave(inquiry.id, editTitle, editContent);
+        await onSave(help.id, editTitle, editContent);
         setIsEditing(false);
         setSaving(false);
     };
 
     const handleDelete = async () => {
-        if (!confirm("정말 삭제하시겠습니까?")) return;
+        if (!confirm(t("common.confirmDelete"))) return;
+
         setDeleting(true);
-        await onDelete(inquiry.id);
+        await onDelete(help.id);
         setDeleting(false);
     };
+
 
     return (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
@@ -58,7 +62,7 @@ export default function InquiryDetailDialog({
                         className="w-full border p-3 text-lg font-bold mb-2"
                     />
                 ) : (
-                    <h2 className="text-xl font-bold mb-2">{inquiry.title}</h2>
+                    <h2 className="text-xl font-bold mb-2">{help.title}</h2>
                 )}
 
                 <p className="text-sm text-gray-600 font-semibold mb-2">
@@ -75,7 +79,7 @@ export default function InquiryDetailDialog({
                     />
                 ) : (
                     <div className="text-gray-800 whitespace-pre-wrap mb-4 h-[400px] overflow-y-auto">
-                        {inquiry.content}
+                        {help.content}
                     </div>
                 )}
 

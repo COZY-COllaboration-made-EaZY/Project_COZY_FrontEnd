@@ -13,6 +13,36 @@
   "nav": {
     "feature": "기능",
     "recruit": "모집",
-    "inquiry": "문의"
+    "help": "문의"
+  },
+  "help": {
+    "all": "전체",
+    "usage": "사용문의",
+    "personal": "1:1 문의",
+
+    "writeUsage": "사용문의 작성",
+    "writePersonal": "1:1 문의 작성",
+    "write": "작성",
+
+    "type": "종류",
+    "status": "상태",
+    "title": "제목",
+    "author": "작성자",
+    "createdAt": "등록일",
+
+    "placeholder_title": "제목을 입력하세요",
+    "placeholder_content": "내용을 입력하세요",
+
+    "submit": "등록",
+    "cancel": "취소",
+
+    "loading": "로딩 중...",
+    "load_fail": "문의 데이터를 불러오는데 실패했습니다.",
+
+    "status_wait": "대기",
+    "status_done": "완료"
+  },
+  "common": {
+    "confirmDelete": "정말 삭제하시겠습니까?"
   }
 }

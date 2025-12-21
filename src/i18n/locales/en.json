@@ -13,6 +13,36 @@
   "nav": {
     "feature": "Feature",
     "recruit": "Recruit",
-    "inquiry": "Inquiry"
+    "help": "Help"
+  },
+  "help": {
+    "all": "All",
+    "usage": "Usage Inquiry",
+    "personal": "1:1 Inquiry",
+
+    "writeUsage": "Create Usage Inquiry",
+    "writePersonal": "Create 1:1 Inquiry",
+    "write": "Create",
+
+    "type": "Type",
+    "status": "Status",
+    "title": "Title",
+    "author": "Author",
+    "createdAt": "Date",
+
+    "placeholder_title": "Enter title",
+    "placeholder_content": "Enter content",
+
+    "submit": "Submit",
+    "cancel": "Cancel",
+
+    "loading": "Loading...",
+    "load_fail": "Failed to load inquiry data.",
+
+    "status_wait": "Pending",
+    "status_done": "Completed"
+  },
+  "common": {
+    "confirmDelete": "정말 삭제하시겠습니까?"
   }
 }

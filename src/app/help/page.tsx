@@ -2,16 +2,14 @@
 
 import { useEffect, useState } from "react";
 import {
-    createInquiryRequest,
-    deleteInquiryRequest,
-    getInquiriesRequest,
-    updateInquiryRequest,
-} from "@/api/requests/inquiry";
+    createHelpRequest, deleteHelpRequest, getHelpRequest, updateHelpRequest,
+} from "@/api/requests/help";
 import { useUserStore } from "@/store/userStore";
-import InquiryCreateDialog from "@/components/Inquiry/InquiryCreateDialog";
-import InquiryDetailDialog from "@/components/Inquiry/InquiryDetailDialog";
+import HelpDetailDialog from "@/components/help/HelpDetailDialog";
+import {useTranslation} from "react-i18next";
+import HelpCreateDialog from "@/components/help/HelpCreateDialog";
 
-type Inquiry = {
+type Help = {
     id: number;
     type: "사용문의" | "1:1 문의" | string;
     status: string;
@@ -20,20 +18,28 @@ type Inquiry = {
     createdAt: string;
 };
 
-export default function InquiryPage() {
+export default function HelpPage() {
+    const { t } = useTranslation();
     const user = useUserStore((s) => s.user);
     const username = user?.nickname || "";
 
-    const [data, setData] = useState<Inquiry[]>([]);
+    const [data, setData] = useState<Help[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const [viewType, setViewType] = useState<"전체" | "사용문의" | "1:1 문의">("전체");
-    const [openType, setOpenType] = useState<"사용문의" | "1:1 문의" | null>(null);
-    const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
+    const [viewType, setViewType] = useState<"all" | "usage" | "personal">("all");
+    const [openType, setOpenType] = useState<"usage" | "personal" | null>(null);
+    const [selectedHelp, setSelectedHelp] = useState<Help | null>(null);
+
+    const tabs = [
+        { key: "all", label: t("help.all") },
+        { key: "usage", label: t("help.usage") },
+        { key: "personal", label: t("help.personal") },
+    ];
+
 
     const fetchData = async () => {
         try {
-            const res = await getInquiriesRequest();
+            const res = await getHelpRequest();
             setData(res);
         } catch (e) {
             console.error(e);
@@ -49,39 +55,40 @@ export default function InquiryPage() {
 
     const handleCreate = async (title: string, content: string) => {
         if (!openType) return;
-        await createInquiryRequest(openType, title, content);
+        await createHelpRequest(openType, title, content);
+        alert("등록 성공ㅇ");
         await fetchData();
         setOpenType(null);
     };
 
     const handleSave = async (id: number, title: string, content: string) => {
-        await updateInquiryRequest(id, { title, content });
+        await updateHelpRequest(id, { title, content });
         await fetchData();
     };
 
     const handleDelete = async (id: number) => {
-        await deleteInquiryRequest(id);
+        await deleteHelpRequest(id);
         await fetchData();
-        setSelectedInquiry(null);
+        setSelectedHelp(null);
     };
 
     const filteredData =
-        viewType === "전체" ? data : data.filter((inquiry) => inquiry.type === viewType);
+        viewType === "all" ? data : data.filter((help) => help.type === viewType);
 
     return (
         <div className="p-8">
             {/* 탭 */}
             <div className="flex justify-between mb-6">
                 <div className="flex gap-2">
-                    {["전체", "사용문의", "1:1 문의"].map((type) => (
+                    {tabs.map((tab) => (
                         <button
-                            key={type}
+                            key={tab.key}
                             className={`border px-4 py-2 rounded-full text-sm ${
-                                viewType === type ? "bg-gray-200" : ""
+                                viewType === tab.key ? "bg-gray-200" : ""
                             }`}
-                            onClick={() => setViewType(type as any)}
+                            onClick={() => setViewType(tab.key as any)}
                         >
-                            {type}
+                            {tab.label}
                         </button>
                     ))}
                 </div>
@@ -91,20 +98,21 @@ export default function InquiryPage() {
             <div className="flex gap-2 mb-4">
                 <button
                     className="border px-4 py-2 rounded"
-                    onClick={() => setOpenType("사용문의")}
+                    onClick={() => setOpenType("usage")}
                 >
-                    사용문의 작성
+                    {t("help.writeUsage")}
                 </button>
+
                 <button
                     className="border px-4 py-2 rounded"
-                    onClick={() => setOpenType("1:1 문의")}
+                    onClick={() => setOpenType("personal")}
                 >
-                    1:1 문의 작성
+                    {t("help.writePersonal")}
                 </button>
             </div>
 
             {/* 작성 모달 */}
-            <InquiryCreateDialog
+            <HelpCreateDialog
                 openType={openType}
                 username={username}
                 onSubmit={handleCreate}
@@ -112,10 +120,10 @@ export default function InquiryPage() {
             />
 
             {/* 상세 모달 */}
-            <InquiryDetailDialog
-                inquiry={selectedInquiry}
+            <HelpDetailDialog
+                help={selectedHelp}
                 username={username}
-                onClose={() => setSelectedInquiry(null)}
+                onClose={() => setSelectedHelp(null)}
                 onSave={handleSave}
                 onDelete={handleDelete}
             />
@@ -127,27 +135,27 @@ export default function InquiryPage() {
                 <table className="w-full text-sm mt-4">
                     <thead>
                     <tr className="border-b">
-                        <th className="text-center p-2">종류</th>
-                        <th className="text-center p-2">상태</th>
-                        <th className="text-center p-2">제목</th>
-                        <th className="text-center p-2">작성자</th>
-                        <th className="text-center p-2">등록일</th>
+                        <th className="text-center p-2">{t("help.type")}</th>
+                        <th className="text-center p-2">{t("help.status")}</th>
+                        <th className="text-center p-2">{t("help.title")}</th>
+                        <th className="text-center p-2">{t("help.author")}</th>
+                        <th className="text-center p-2">{t("help.createdAt")}</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {filteredData.map((inquiry) => (
-                        <tr key={inquiry.id} className="border-b">
-                            <td className="text-center p-2">{inquiry.type}</td>
-                            <td className="text-center p-2">{inquiry.status}</td>
+                    {filteredData.map((help) => (
+                        <tr key={help.id} className="border-b">
+                            <td className="text-center p-2">{help.type}</td>
+                            <td className="text-center p-2">{help.status}</td>
                             <td
                                 className="text-center p-2 text-blue-600 hover:underline cursor-pointer"
-                                onClick={() => setSelectedInquiry(inquiry)}
+                                onClick={() => setSelectedHelp(help)}
                             >
-                                {inquiry.title}
+                                {help.title}
                             </td>
                             <td className="text-center p-2">{username}</td>
                             <td className="text-center p-2">
-                                {new Date(inquiry.createdAt).toLocaleString()}
+                                {new Date(help.createdAt).toLocaleString()}
                             </td>
                         </tr>
                     ))}
