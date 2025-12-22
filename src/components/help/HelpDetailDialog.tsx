@@ -28,8 +28,8 @@ export default function HelpDetailDialog({
                                              onDelete,
                                          }: Props) {
     const [isEditing, setIsEditing] = useState(false);
-    const [editTitle, setEditTitle] = useState(help?.title ?? "");
-    const [editContent, setEditContent] = useState(help?.content ?? "");
+    const [editTitle, setEditTitle] = useState("");
+    const [editContent, setEditContent] = useState("");
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const { t } = useTranslation();
@@ -49,6 +49,7 @@ export default function HelpDetailDialog({
         setDeleting(true);
         await onDelete(help.id);
         setDeleting(false);
+        alert("수정이 완료되었습니다.");
     };
 
 
@@ -59,7 +60,11 @@ export default function HelpDetailDialog({
                     <input
                         value={editTitle}
                         onChange={(e) => setEditTitle(e.target.value)}
-                        className="w-full border p-3 text-lg font-bold mb-2"
+                        placeholder={help.title}
+                        className="
+                        w-full border p-3 text-lg font-bold mb-2
+                        placeholder:text-gray-400
+                                    "
                     />
                 ) : (
                     <h2 className="text-xl font-bold mb-2">{help.title}</h2>
@@ -75,8 +80,13 @@ export default function HelpDetailDialog({
                     <textarea
                         value={editContent}
                         onChange={(e) => setEditContent(e.target.value)}
-                        className="w-full border p-4 text-base resize-none h-[400px]"
+                        placeholder={help.content}
+                        className="
+                        w-full border p-4 text-base resize-none h-[400px]
+                        placeholder:text-gray-400
+                                    "
                     />
+
                 ) : (
                     <div className="text-gray-800 whitespace-pre-wrap mb-4 h-[400px] overflow-y-auto">
                         {help.content}
@@ -104,11 +114,16 @@ export default function HelpDetailDialog({
                     ) : (
                         <>
                             <button
-                                onClick={() => setIsEditing(true)}
+                                onClick={() => {
+                                    setEditTitle(help.title);
+                                    setEditContent(help.content);
+                                    setIsEditing(true);
+                                }}
                                 className="border px-6 py-3 rounded bg-blue-600 text-white"
                             >
                                 수정
                             </button>
+
                             <button
                                 onClick={handleDelete}
                                 className="border px-6 py-3 rounded bg-red-600 text-white disabled:opacity-50"

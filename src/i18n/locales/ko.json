@@ -40,9 +40,12 @@
     "load_fail": "문의 데이터를 불러오는데 실패했습니다.",
 
     "status_wait": "대기",
-    "status_done": "완료"
+    "status_done": "완료",
+
+    "empty": "작성된 문의가 없습니다."
   },
   "common": {
-    "confirmDelete": "정말 삭제하시겠습니까?"
+    "confirmDelete": "정말 삭제하시겠습니까?",
+    "loading": "로딩중 입니다."
   }
 }
