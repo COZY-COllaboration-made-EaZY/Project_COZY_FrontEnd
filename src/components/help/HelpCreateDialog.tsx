@@ -28,6 +28,7 @@ export default function HelpCreateDialog({
         await onSubmit(title, content);
         setTitle("");
         setContent("");
+        alert("등록을 완료했습니다.")
     };
 
     return (
