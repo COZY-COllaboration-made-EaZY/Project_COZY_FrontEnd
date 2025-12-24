@@ -134,27 +134,16 @@ export default function Login() {
                     {error && (
                         <Alert
                             variant="destructive"
-                            className="
-                                border-red-300 bg-red-500/20 text-red-100
-                                px-4 py-2
-                            "
+                            className="w-full border-red-300 bg-red-500/20 text-red-100 px-4 py-2"
                         >
                             <AlertTitle className="font-bold">오류</AlertTitle>
-                            <p className="text-sm">{error}</p>
+                            <p className="text-sm whitespace-nowrap">{error}</p>
                         </Alert>
                     )}
 
                     {/* 로그인 버튼 */}
                     <Button
-                        className="
-                            mt-2 w-full
-                            rounded-xl
-                            bg-white/90
-                            text-[#7d6bff]
-                            font-semibold
-                            hover:bg-white
-                            transition
-                        "
+                        className=" mt-2 w-full rounded-xl bg-white/90 text-[#7d6bff] font-semibold hover:bg-white transition"
                         onClick={handleLogin}
                         disabled={loading}
                     >
