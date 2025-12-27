@@ -25,9 +25,10 @@ type Help = {
 };
 
 export default function HelpPage() {
+
     const user = useUserStore((s) => s.user);
     const username = user?.nickname || "";
-
+    const isLoggedIn = !!user;
     const [data, setData] = useState<Help[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -83,7 +84,15 @@ export default function HelpPage() {
         <div className="p-8 space-y-8">
             <HelpTabs value={viewType} onChange={setViewType} />
 
-            <HelpCreateButtons onOpen={setOpenType} />
+            <HelpCreateButtons
+                onOpen={(type) => {
+                    if (!isLoggedIn) {
+                        alert("로그인이 필요합니다.");
+                        return;
+                    }
+                    setOpenType(type);
+                }}
+            />
 
             <HelpTable
                 data={filteredData}
@@ -106,6 +115,7 @@ export default function HelpPage() {
                 onSave={handleSave}
                 onDelete={handleDelete}
             />
+
         </div>
     );
 }
