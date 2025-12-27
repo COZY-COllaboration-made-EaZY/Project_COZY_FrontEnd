@@ -7,12 +7,14 @@ import { Input } from '@/components/ui/input';
 import { getRecruitListRequest } from '@/api/requests/recruit';
 import RecruitCreateDialog from '@/components/recruit/RecruitCreateDialog';
 import RecruitDetailDialog, { RecruitItem } from '@/components/recruit/RecruitDetailDialog';
+import {useUserStore} from "@/store/userStore";
 
 export default function RecruitList() {
     const [recruits, setRecruits] = useState<RecruitItem[]>([]);
     const [search, setSearch] = useState('');
     const [showCreate, setShowCreate] = useState(false);
     const [selected, setSelected] = useState<RecruitItem | null>(null);
+    const { isLoggedIn } = useUserStore();
 
     type ApiRecruit = any;
 
@@ -54,6 +56,7 @@ export default function RecruitList() {
                     <Button
                         className="h-10 w-24 bg-blue-600 text-white"
                         onClick={() => setShowCreate(true)}
+                        disabled={!isLoggedIn}
                     >
                         Create Recruit
                     </Button>
