@@ -1,22 +1,33 @@
 import TeamDashCard from "@/components/team/TeamDashCard";
+import ClockWidget from "@/components/team/ClockWidget";
+import {ClockOnly} from "@/components/team/ClockOnly";
+import {DateTimeCard} from "@/components/team/DateTimeCard";
+
 
 export const DashboardLeft = () => {
-    return(
-        <section className={"rounded-md border-2 border-gray-700 bg-white p-6 shadow-sm"}>
-            <div className={"mb-6"}>
-                <div className={"rounded-md border-2 border-gray-700 px-4 py-1 inline-block text-sm font-semibold"}>
-                    현황
+    return (
+        <section className="rounded-xl border border-gray-200 bg-white p-10 shadow-sm">
+            <h2 className="mb-8 text-xl font-bold text-gray-800">팀 현황</h2>
+
+            <div className="grid grid-cols-1 gap-10 lg:grid-cols-[260px_1fr]">
+                {/* 왼쪽: 시계 + 시간 */}
+                <div className="flex flex-col items-center gap-6">
+                    <ClockOnly />
+                    <DateTimeCard />
+                </div>
+
+                {/* 오른쪽: 카드 */}
+                <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+                    <TeamDashCard title="장기 미접속" count={0} color="bg-purple-500" />
+                    <TeamDashCard title="승급 신청" count={0} color="bg-blue-500" />
+                    <TeamDashCard title="진행 프로젝트" count={0} color="bg-pink-500" />
+                    <TeamDashCard title="공지사항" count={0} color="bg-yellow-400" />
+                    <TeamDashCard title="팀 탈퇴 요청" count={0} color="bg-gray-900" />
+                    <TeamDashCard title="팀 참가 신청" count={0} color="bg-green-500" />
                 </div>
             </div>
-
-            <div className={"grid grid-cols-1 gap-6 sm:grid-cols-2"}>
-                <TeamDashCard title={"장기 미접속"} count={0} className={"bg-purple-700"} />
-                <TeamDashCard title="승급 신청" count={0} className="bg-blue-700" />
-                <TeamDashCard title="진행 프로젝트" count={0} className="bg-pink-500" />
-                <TeamDashCard title="공지사항" count={0} className="bg-yellow-300 text-gray-900" />
-                <TeamDashCard title="팀 탈퇴 요청" count={0} className="bg-black" />
-                <TeamDashCard title="팀 참가 신청" count={0} className="bg-green-400 text-gray-900" />
-            </div>
         </section>
-    )
-}
+    );
+};
+
+
