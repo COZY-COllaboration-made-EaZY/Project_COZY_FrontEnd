@@ -1,11 +1,34 @@
-export default function TeamDashCard({title,count,className=""} : {title:string; count: number; className?: string}) {
+import { cn } from "@/lib/utils";
+
+interface Props {
+    title: string;
+    count: number;
+    color: string; // ex) bg-purple-500
+}
+
+export default function TeamDashCard({ title, count, color }: Props) {
     return (
-        <div className={[
-            "flex h-40 flex-col items-center justify-center rounded-md border-2 border-gray-700 text-white shadow-sm",
-            className,
-        ].join(" ")}>
-            <div className={"text-sm font-semibold tracking-tight"}>{title}</div>
-            <div className={"mt-4 text-xs opacity-90"}>{count}건</div>
+        <div
+            className={cn(
+                "group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-6 shadow-sm",
+                "transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
+            )}
+        >
+            {/* 왼쪽 컬러 포인트 */}
+            <div className={cn("absolute left-0 top-0 h-full w-1.5", color)} />
+
+            <div className="flex h-full flex-col justify-between">
+                <p className="text-sm font-medium text-gray-600">
+                    {title}
+                </p>
+
+                <div className="mt-4 flex items-end justify-between">
+          <span className="text-3xl font-bold text-gray-900">
+            {count}
+          </span>
+                    <span className="text-sm text-gray-400">건</span>
+                </div>
+            </div>
         </div>
     );
 }
