@@ -24,7 +24,7 @@ export interface MyTeamResponse {
 
 // 3. 팀 생성 요청
 export const createTeamRequest = async (dto: CreateTeamDTO) => {
-    const res = await apiClient.post("/api/team/create", dto);
+    const res = await apiClient.post("/api/team", dto);
     return res.data;
 };
 

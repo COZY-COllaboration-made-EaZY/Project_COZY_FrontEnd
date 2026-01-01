@@ -32,14 +32,12 @@ export default function HelpPage() {
     const [data, setData] = useState<Help[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const [viewType, setViewType] =
-        useState<"all" | "usage" | "personal">("all");
-    const [openType, setOpenType] =
-        useState<"usage" | "personal" | null>(null);
+    const [viewType, setViewType] = useState<"all" | "usage" | "personal">("all");
+    const [openType, setOpenType] = useState<"usage" | "personal" | null>(null);
 
     const [selectedHelp, setSelectedHelp] = useState<Help | null>(null);
 
-    const fetchHelp = async () => {
+    const helpListRequest = async () => {
         try {
             const res = await getHelpRequest();
             setData(res);
@@ -49,13 +47,13 @@ export default function HelpPage() {
     };
 
     useEffect(() => {
-        fetchHelp();
+        helpListRequest();
     }, []);
 
     const handleCreate = async (title: string, content: string) => {
         if (!openType) return;
         await createHelpRequest(openType, title, content);
-        await fetchHelp();
+        await helpListRequest();
         setOpenType(null);
     };
 
