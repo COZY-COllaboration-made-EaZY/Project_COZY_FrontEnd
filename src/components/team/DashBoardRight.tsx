@@ -1,4 +1,4 @@
-import {EmptyState} from "@/components/team/EmptyState";
+import { EmptyState } from "@/components/team/EmptyState";
 import { DashboardPanel } from "./DashboardPanel";
 
 export const DashboardRight = () => {
