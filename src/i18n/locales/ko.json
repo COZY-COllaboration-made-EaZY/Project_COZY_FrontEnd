@@ -47,5 +47,30 @@
   "common": {
     "confirmDelete": "정말 삭제하시겠습니까?",
     "loading": "로딩중 입니다."
+  },
+  "dashboard": {
+    "teamStatus": "팀 현황",
+
+    "cards": {
+      "inactive": "장기 미접속",
+      "promotion": "승급 신청",
+      "projects": "진행 프로젝트",
+      "notice": "공지사항",
+      "leave": "팀 탈퇴 요청",
+      "join": "팀 참가 신청"
+    },
+
+    "recentNotice": "최근 공지사항",
+    "recentPost": "최근 게시물",
+    "empty": "없습니다.",
+
+    "date": {
+      "am": "오전",
+      "pm": "오후",
+      "weekdays": ["일", "월", "화", "수", "목", "금", "토"]
+    }
+  },
+  "unit": {
+    "count": "건"
   }
 }
