@@ -6,6 +6,7 @@ import { useUserStore } from "@/store/userStore";
 import { Team, useTeamStore } from "@/store/teamStore";
 import { getMyTeamInfoRequest } from "@/api/requests/team";
 
+// teamlist
 export function TeamList() {
     const { isLoggedIn, accessToken } = useUserStore();
     const { teams, setTeams, setCurrentTeamId } = useTeamStore();
@@ -73,7 +74,6 @@ export function TeamList() {
                 </>
             )}
 
-            {/* 팀이 있을 때 */}
             {!loading && !errMsg && teams.length > 0 && (
                 <>
                     <h2 className="text-5xl font-bold mb-6 text-white">
@@ -82,22 +82,23 @@ export function TeamList() {
 
                     <div className="space-y-5">
                         <div className="text-center">
-                            <h3 className="text-xl font-bold mb-2 text-white">Team List</h3>
+                            <h3 className="text-xl font-bold mb-2 text-white">
+                                Team List
+                            </h3>
                         </div>
 
-                        {/*Team List Array*/}
+                        {/* Team List */}
                         {teams.map((team: Team, index: number) => (
                             <div
                                 key={team.id}
                                 onClick={() => setCurrentTeamId(team.id)}
-                                className="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-white p-4 text-left shadow-sm hover:bg-purple-200 transition
-                                "
+                                className="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-white p-4 shadow-sm transition hover:bg-purple-200"
                             >
                                 <Link
                                     href={`/team/${encodeURIComponent(team.teamName)}/dashboard`}
-                                    className="flex-1"
+                                    className="flex-1 text-center"
                                 >
-                                    <div className="font-semibold text-center text-white">
+                                    <div className="font-semibold text-white">
                                         {index + 1}. {team.teamName}
                                     </div>
                                     <div className="text-sm text-slate-600">
@@ -106,9 +107,21 @@ export function TeamList() {
                                 </Link>
                             </div>
                         ))}
+
+                        {/* ➕ Create Team */}
+                        <Link
+                            href="/createteam"
+                            className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-white/60 p-4 text-white transition hover:bg-purple-300/40 hover:border-white"
+                        >
+                            <span className="text-2xl font-bold">+</span>
+                            <span className="text-lg font-semibold">
+                    Create a new team
+                </span>
+                        </Link>
                     </div>
                 </>
             )}
+
         </div>
     );
 }
