@@ -1,5 +1,12 @@
-export const DashboardPanel = ({ title, children }) => {
-    return(
+import { ReactNode } from "react";
+
+interface Props {
+    title: string;
+    children: ReactNode;
+}
+
+export const DashboardPanel = ({ title, children }: Props) => {
+    return (
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
             <h3 className="mb-4 text-sm font-semibold text-gray-700">
                 {title}
@@ -8,5 +15,5 @@ export const DashboardPanel = ({ title, children }) => {
                 {children}
             </div>
         </div>
-    )
-}
+    );
+};

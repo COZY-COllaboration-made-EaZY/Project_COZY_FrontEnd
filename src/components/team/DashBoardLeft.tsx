@@ -1,18 +1,27 @@
 import { ClockOnly } from "@/components/team/ClockOnly";
 import { DateTimeCard } from "@/components/team/DateTimeCard";
+import { CalendarCard } from "@/components/team/CalendarCard";
+import {DashboardLabels} from "@/types/types";
 
-export const DashboardLeft = () => {
+interface Props {
+    labels: DashboardLabels;
+}
+
+export const DashboardLeft = ({ labels }: Props) => {
     return (
         <aside className="flex flex-col gap-8">
-            {/* 시계 */}
-            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm flex justify-center">
-                <ClockOnly />
-            </div>
+            <ClockOnly />
 
-            {/* 날짜 + 시간 */}
-            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                <DateTimeCard />
-            </div>
+            <DateTimeCard
+                locale={labels.locale}
+                am={labels.am}
+                pm={labels.pm}
+            />
+
+            <CalendarCard
+                weekdays={labels.weekdays}
+                locale={labels.locale}
+            />
         </aside>
     );
 };

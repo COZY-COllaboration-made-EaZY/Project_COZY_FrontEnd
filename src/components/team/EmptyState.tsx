@@ -1,7 +1,11 @@
-export const EmptyState = () => {
-    return(
-        <div className={"flex h-full items-center justify-center text-sm text-gray-500"}>
-            없습니다.
-        </div>
-    )
+interface Props {
+    text: string;
 }
+
+export const EmptyState = ({ text }: Props) => {
+    return (
+        <p className="text-sm text-gray-400">
+            {text}
+        </p>
+    );
+};

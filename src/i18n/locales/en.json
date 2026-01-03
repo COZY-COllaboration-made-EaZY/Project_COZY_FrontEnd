@@ -47,5 +47,31 @@
   "common": {
     "confirmDelete": "Are you sure you want to delete this?",
     "loading": "Loading..."
+  },
+  "dashboard": {
+    "teamStatus": "Team Status",
+
+    "cards": {
+      "inactive": "Inactive Users",
+      "promotion": "Promotion Requests",
+      "projects": "Active Projects",
+      "notice": "Notices",
+      "leave": "Leave Requests",
+      "join": "Join Requests"
+    },
+
+    "recentNotice": "Recent Notices",
+    "recentPost": "Recent Posts",
+    "empty": "No data available.",
+
+    "date": {
+      "am": "AM",
+      "pm": "PM",
+      "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    },
+    "unit": {
+      "count": "items"
+    }
   }
+
 }

@@ -1,19 +1,60 @@
 import TeamDashCard from "@/components/team/TeamDashCard";
+import {DashboardLabels} from "@/types/types";
 
-export const DashboardCenter = () => {
+interface Props {
+    labels: DashboardLabels;
+}
+
+export const DashboardCenter = ({ labels }: Props) => {
     return (
-        <section className="rounded-xl border border-gray-200 bg-white p-10 shadow-sm">
-            <h2 className="mb-8 text-xl font-bold text-gray-800">
-                팀 현황
+        <section className="rounded-xl border bg-white p-10 shadow-sm">
+            <h2 className="mb-8 text-xl font-bold">
+                {labels.teamStatus}
             </h2>
 
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
-                <TeamDashCard title="장기 미접속" count={0} color="bg-purple-500" />
-                <TeamDashCard title="승급 신청" count={0} color="bg-blue-500" />
-                <TeamDashCard title="진행 프로젝트" count={0} color="bg-pink-500" />
-                <TeamDashCard title="공지사항" count={0} color="bg-yellow-400" />
-                <TeamDashCard title="팀 탈퇴 요청" count={0} color="bg-gray-900" />
-                <TeamDashCard title="팀 참가 신청" count={0} color="bg-green-500" />
+                <TeamDashCard
+                    title={labels.cards.inactive}
+                    count={0}
+                    unit={labels.unit.count}
+                    color="bg-purple-500"
+                />
+
+                <TeamDashCard
+                    title={labels.cards.promotion}
+                    count={0}
+                    unit={labels.unit.count}
+                    color="bg-blue-500"
+                />
+
+                <TeamDashCard
+                    title={labels.cards.projects}
+                    count={0}
+                    unit={labels.unit.count}
+                    color="bg-pink-500"
+                />
+
+                <TeamDashCard
+                    title={labels.cards.notice}
+                    count={0}
+                    unit={labels.unit.count}
+                    color="bg-yellow-400"
+                />
+
+                <TeamDashCard
+                    title={labels.cards.leave}
+                    count={0}
+                    unit={labels.unit.count}
+                    color="bg-gray-900"
+                />
+
+                <TeamDashCard
+                    title={labels.cards.join}
+                    count={0}
+                    unit={labels.unit.count}
+                    color="bg-green-500"
+                />
+
             </div>
         </section>
     );
