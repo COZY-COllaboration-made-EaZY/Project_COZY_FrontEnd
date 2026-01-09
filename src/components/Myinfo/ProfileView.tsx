@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from "next/link";
 
 export default function ProfileView({ user, onEdit }: { user: any; onEdit: () => void }) {
     const getFallbackAvatar = () => {
@@ -8,6 +9,8 @@ export default function ProfileView({ user, onEdit }: { user: any; onEdit: () =>
     const profileImageSrc = user?.profileImage
         ? (user.profileImage.startsWith('http') ? user.profileImage : `/uploads/${user.profileImage}`)
         : null;
+
+
 
     return (
         <div className="bg-white shadow-md rounded-lg p-6 w-96 text-center">
@@ -33,6 +36,13 @@ export default function ProfileView({ user, onEdit }: { user: any; onEdit: () =>
             <button className="w-full bg-blue-500 text-white p-2 mt-4 rounded-md" onClick={onEdit}>
                 수정하기
             </button>
+            <br/>
+            <Link href={"/myinfo/request"}>
+                <button className={"w-full bg-gray-200 text-gray-600 p-2 mt-4 rounded-md"}>
+                    상태확인
+                </button>
+            </Link>
+
         </div>
     );
 }

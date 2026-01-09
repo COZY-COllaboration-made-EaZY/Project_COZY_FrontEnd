@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import { useUserStore } from "@/store/userStore";
 import {createRecruitRequest} from "@/api/requests/recruit";
+import {useTeamStore} from "@/store/teamStore";
 
 interface Props {
     onClose: () => void;
@@ -14,6 +15,15 @@ export default function RecruitCreateDialog({ onClose, onSuccess }: Props) {
     const [title, setTitle] = useState('');
     const [recruitText, setRecruitText] = useState('');
     const [isClosing, setIsClosing] = useState(false);
+    const {teams,currentTeamId,getCurrentTeam, setCurrentTeamId} = useTeamStore();
+    const currentTeam = getCurrentTeam();
+
+    useEffect(() => {
+        if (teams.length === 1 && !currentTeamId){
+            setCurrentTeamId(teams[0].id);
+        }
+    }, [teams,currentTeamId,setCurrentTeamId]);
+
 
     const handleClose = () => {
         setIsClosing(true);
@@ -23,18 +33,26 @@ export default function RecruitCreateDialog({ onClose, onSuccess }: Props) {
     };
 
     const handleSubmit = async () => {
+        if (!currentTeamId) {
+            alert("팀을 선택해주세요.");
+            return;
+        }
+
         try {
             await createRecruitRequest({
+                teamId: currentTeamId,
                 title,
-                nickName: user?.nickname ?? '',
+                nickName: user?.nickname ?? "",
                 recruitText,
             });
+
             onSuccess();
             handleClose();
-        } catch (e : any) {
-            alert('게시글 등록 실패');
+        } catch (e: any) {
+            alert("게시글 등록 실패");
         }
     };
+
 
     return (
         <div
@@ -65,6 +83,30 @@ export default function RecruitCreateDialog({ onClose, onSuccess }: Props) {
                             className="w-80 px-3 py-2 rounded text-sm border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
                         />
                     </div>
+                    <div className="flex items-center gap-4">
+                        <label className="w-20 text-sm font-semibold">SeletedTeam</label>
+
+                        {teams.length > 1 ? (
+                            <select
+                                value={currentTeamId}
+                                onChange={(e) => setCurrentTeamId(e.target.value)}
+                                className="w-50 px-3 py-2 rounded text-sm border border-gray-300 bg-white
+                                            focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            >
+                                <option value="">팀 선택</option>
+                                {teams.map((team) => (
+                                    <option key={team.id} value={team.id}>
+                                        {team.teamName}
+                                    </option>
+                                ))}
+                            </select>
+                        ) : (
+                            <div className="bg-gray-100 text-sm px-4 py-2 rounded w-96 border border-gray-300">
+                                {teams[0]?.teamName ?? "팀 없음"}
+                            </div>
+                        )}
+                    </div>
+
                     {/* 내용 */}
                     <div>
                         <label className="block mb-1 text-sm font-semibold">내용</label>

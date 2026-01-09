@@ -5,12 +5,15 @@ export const getRecruitListRequest = async () => {
     return res.data;
 };
 
+export type CreateRecruitDto = {
+    teamId: string;
+    title: string;
+    nickName: string;
+    recruitText: string;
+};
+
 export const createRecruitRequest = async (
-    recruitDto: {
-        title: string;
-        nickName: string;
-        recruitText: string;
-    }
+    recruitDto: CreateRecruitDto
 ) => {
     return await apiClient.post("/api/recruit/create", recruitDto);
 };

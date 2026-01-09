@@ -2,12 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { deleteRecruitRequest, updateRecruitRequest } from '@/api/requests/recruit';
+import TeamJoinRequestDialog from '@/components/recruit/TeamJoinRequestDialog';
 
 export type RecruitItem = {
     id: number;
     title: string;
     nickName: string;
-    content: string;
+    recruitText: string;
+    teamName: string;
+    teamId: string;
     createdAt: string;
 };
 
@@ -25,16 +28,17 @@ export default function RecruitDetailDialog({
                                                 onUpdated,
                                             }: Props) {
     const [isEditing, setIsEditing] = useState(false);
-    const [editTitle, setEditTitle] = useState(recruit?.title ?? '');
-    const [editContent, setEditContent] = useState(recruit?.content ?? '');
+    const [editTitle, setEditTitle] = useState('');
+    const [editContent, setEditContent] = useState('');
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
-
+    const [showJoinDialog, setShowJoinDialog] = useState(false);
 
     useEffect(() => {
+        if (!recruit) return;
         setIsEditing(false);
-        setEditTitle(recruit?.title ?? '');
-        setEditContent(recruit?.content ?? '');
+        setEditTitle(recruit.title);
+        setEditContent(recruit.recruitText);
     }, [recruit]);
 
     if (!recruit) return null;
@@ -45,7 +49,7 @@ export default function RecruitDetailDialog({
             title: editTitle,
             recruitText: editContent,
         });
-        onUpdated?.({ ...recruit, title: editTitle, content: editContent });
+        onUpdated?.({ ...recruit, title: editTitle, recruitText: editContent });
         setIsEditing(false);
         setSaving(false);
     };
@@ -59,84 +63,134 @@ export default function RecruitDetailDialog({
     };
 
     return (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded shadow-xl w-full max-w-3xl">
-                {/* 제목 */}
-                {isEditing ? (
-                    <input
-                        value={editTitle}
-                        onChange={(e) => setEditTitle(e.target.value)}
-                        className="w-full border p-3 text-lg font-bold mb-2"
-                    />
-                ) : (
-                    <h2 className="text-xl font-bold mb-2">{recruit.title}</h2>
-                )}
+        <>
+            {/* Recruit Detail Dialog */}
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md">
+                <div className="w-full max-w-3xl rounded-2xl bg-white shadow-2xl overflow-hidden">
 
-                {/* 작성자 */}
-                <p className="text-sm text-gray-600 font-semibold mb-2">
-                    작성자: {recruit.nickName}
-                </p>
+                    {/* Header */}
+                    <div className="px-6 py-5 border-b bg-gradient-to-r from-indigo-50 to-sky-50">
+                        {isEditing ? (
+                            <input
+                                value={editTitle}
+                                onChange={(e) => setEditTitle(e.target.value)}
+                                className="
+                                    w-full text-2xl font-bold bg-transparent
+                                    border-b-2 border-indigo-400
+                                    focus:outline-none focus:border-indigo-600 transition
+                                "
+                            />
+                        ) : (
+                            <h2 className="text-2xl font-bold text-gray-900">
+                                {recruit.title}
+                            </h2>
+                        )}
 
-                {/* 구분선 */}
-                <hr className="border-t border-black my-4" />
-
-                {/* 내용 */}
-                {isEditing ? (
-                    <textarea
-                        value={editContent}
-                        onChange={(e) => setEditContent(e.target.value)}
-                        className="w-full border p-4 text-base resize-none h-[400px]"
-                    />
-                ) : (
-                    <div className="text-gray-800 whitespace-pre-wrap mb-4 h-[400px] overflow-y-auto">
-                        {recruit.content}
+                        <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
+                            <span>✍{recruit.nickName}</span>
+                            <span>{new Date(recruit.createdAt).toLocaleDateString()}</span>
+                        </div>
                     </div>
-                )}
 
-                {/* 버튼 영역 */}
-                <div className="flex justify-end gap-2">
-                    {isEditing ? (
-                        <>
+                    {/* Content */}
+                    <div className="px-6 py-6">
+                        {isEditing ? (
+                            <textarea
+                                value={editContent}
+                                onChange={(e) => setEditContent(e.target.value)}
+                                className="
+                                    w-full h-[360px] p-4 border rounded-xl resize-none
+                                    focus:outline-none focus:ring-2 focus:ring-indigo-400
+                                "
+                            />
+                        ) : (
+                            <div className="
+                                h-[360px] overflow-y-auto pr-2
+                                whitespace-pre-wrap text-gray-800 leading-relaxed
+                            ">
+                                {recruit.recruitText}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Extra Info */}
+                    <div className="px-6 py-4 border-t bg-gray-50 text-sm text-gray-500">
+                            팀 ID:
+                        <span className="ml-2 font-medium text-gray-700">{recruit.teamName}</span>
+                    </div>
+
+
+                    {/* Footer */}
+                    <div className="px-6 py-4 border-t flex items-center bg-white">
+                        {!isEditing && (
                             <button
-                                onClick={() => setIsEditing(false)}
-                                className="border px-6 py-3 rounded"
-                                disabled={saving}
+                                onClick={() => setShowJoinDialog(true)}
+                                className="
+                                    px-6 py-3 rounded-xl
+                                    bg-gradient-to-r from-amber-400 to-orange-500
+                                    text-white font-semibold shadow-md
+                                    hover:opacity-90 active:scale-[0.98] transition
+                                "
                             >
-                                취소
+                                팀 가입 신청
                             </button>
-                            <button
-                                onClick={handleSave}
-                                className="border px-6 py-3 rounded bg-blue-600 text-white disabled:opacity-50"
-                                disabled={saving}
-                            >
-                                {saving ? '저장 중...' : '저장'}
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            <button
-                                onClick={() => setIsEditing(true)}
-                                className="border px-6 py-3 rounded bg-blue-600 text-white"
-                            >
-                                수정
-                            </button>
-                            <button
-                                onClick={handleDelete}
-                                className="border px-6 py-3 rounded bg-red-600 text-white disabled:opacity-50"
-                                disabled={deleting}
-                            >
-                                {deleting ? '삭제 중...' : '삭제'}
-                            </button>
-                            <button
-                                onClick={onClose}
-                                className="border px-6 py-3 rounded bg-black text-white"
-                            >
-                                닫기
-                            </button>
-                        </>
-                    )}
+                        )}
+
+                        <div className="flex items-center gap-2 ml-auto">
+                            {isEditing ? (
+                                <>
+                                    <button
+                                        onClick={() => setIsEditing(false)}
+                                        className="px-5 py-2 rounded-lg border text-gray-700 hover:bg-gray-100"
+                                        disabled={saving}
+                                    >
+                                        취소
+                                    </button>
+                                    <button
+                                        onClick={handleSave}
+                                        disabled={saving}
+                                        className="px-5 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50"
+                                    >
+                                        {saving ? '저장 중...' : '저장'}
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <button
+                                        onClick={() => setIsEditing(true)}
+                                        className="px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                                    >
+                                        수정
+                                    </button>
+                                    <button
+                                        onClick={handleDelete}
+                                        disabled={deleting}
+                                        className="px-5 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                                    >
+                                        {deleting ? '삭제 중...' : '삭제'}
+                                    </button>
+                                    <button
+                                        onClick={onClose}
+                                        className="px-5 py-2 rounded-lg bg-gray-900 text-white hover:bg-black"
+                                    >
+                                        닫기
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+            {showJoinDialog && (
+                <TeamJoinRequestDialog
+                    teamId={recruit.teamId}
+                    teamName={recruit.teamName}
+                    onClose={() => setShowJoinDialog(false)}
+                    onSuccess={() => {
+                        setShowJoinDialog(false);
+                    }}
+                />
+            )}
+        </>
     );
 }

@@ -18,17 +18,20 @@ export default function RecruitList() {
 
     type ApiRecruit = any;
 
-    const normalize = (d: ApiRecruit) => ({
-        id: d.id ?? d.recruitId,
-        title: d.title ?? '',
-        nickName: d.nickName ?? d.nickname ?? '',
-        content: d.content ?? d.recruitText ?? '',
-        createdAt: d.createdAt ?? d.createdDate ?? '',
+    const normalize = (d: ApiRecruit): RecruitItem => ({
+        id: d.id,
+        title: d.title,
+        nickName: d.nickName,
+        recruitText: d.recruitText,
+        teamName: d.teamName,
+        teamId: d.teamId,
+        createdAt: d.createdAt,
     });
 
     const load = async () => {
         const data = await getRecruitListRequest();
         const normalized = (data ?? []).map(normalize);
+        console.log("data :: "+JSON.stringify(normalized));
         setRecruits(normalized);
     };
 
@@ -73,27 +76,38 @@ export default function RecruitList() {
                 </tr>
                 </thead>
                 <tbody>
-                {filtered.map((row, index) => (
-                    <tr
-                        key={row.id}
-                        className="hover:bg-gray-50 border-b cursor-pointer"
-                        onClick={() => setSelected(row)}
-                    >
-                        <td className="py-2">{index + 1}</td>
-                        <td className="py-2 text-left pl-6">
-                            <Link
-                                href={`/recruit/${row.id}`}
-                                className="hover:underline text-black"
-                                onClick={(e) => e.stopPropagation()}
-                            >
-                                {row.title}
-                            </Link>
+                {filtered.length === 0 ? (
+                    <tr>
+                        <td
+                            colSpan={4}
+                            className="py-20 text-center text-gray-500"
+                        >
+                            현재 모집내용이 없습니다.
                         </td>
-                        <td className="py-2">{row.nickName}</td>
-                        <td className="py-2">{formatDate(row.createdAt)}</td>
                     </tr>
-                ))}
+                ) : (
+                    filtered.map((row, index) => (
+                        <tr
+                            key={row.id}
+                            className="hover:bg-gray-50 border-b cursor-pointer"
+                            onClick={() => setSelected(row)}
+                        >
+                            <td className="py-2">{index + 1}</td>
+                            <td className="py-2 text-left pl-6">
+                                <div
+                                    className="text-black"
+                                    onClick={() => setSelected(row)}
+                                >
+                                    {row.title}
+                                </div>
+                            </td>
+                            <td className="py-2">{row.nickName}</td>
+                            <td className="py-2">{formatDate(row.createdAt)}</td>
+                        </tr>
+                    ))
+                )}
                 </tbody>
+
             </table>
 
             {showCreate && (
