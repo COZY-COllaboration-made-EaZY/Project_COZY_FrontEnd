@@ -5,6 +5,11 @@ export const getRecruitListRequest = async () => {
     return res.data;
 };
 
+export const getRecruitDetailRequest = async (id: number) => {
+    const res = await apiClient.get(`/api/recruit/${id}`);
+    return res.data;
+}
+
 export type CreateRecruitDto = {
     teamId: string;
     title: string;

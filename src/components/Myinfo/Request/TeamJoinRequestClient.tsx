@@ -1,7 +1,7 @@
 'use client'
 
 import {useEffect, useState} from "react";
-import {joinTeamRequestList} from "@/api/requests/joinRequest";
+import {getMyJoinRequests} from "@/api/requests/joinRequest";
 
 type TeamJoinRequest = {
     requestId: string;
@@ -21,7 +21,7 @@ export default function TeamJoinRequestClient() {
     useEffect(() => {
         const getRequestList = async () => {
             try {
-                const res = await joinTeamRequestList();
+                const res = await getMyJoinRequests();
 
                 const list = res.data?.requests ?? [];
                 setRequests(list);
