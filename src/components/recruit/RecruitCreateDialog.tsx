@@ -15,14 +15,14 @@ export default function RecruitCreateDialog({ onClose, onSuccess }: Props) {
     const [title, setTitle] = useState('');
     const [recruitText, setRecruitText] = useState('');
     const [isClosing, setIsClosing] = useState(false);
-    const {teams,currentTeamId,getCurrentTeam, setCurrentTeamId} = useTeamStore();
+    const {teams,currentTeamId,getCurrentTeam, setCurrentTeamId,clearCurrentTeam } = useTeamStore();
     const currentTeam = getCurrentTeam();
 
     useEffect(() => {
-        if (teams.length === 1 && !currentTeamId){
+        if (teams.length === 1 && !currentTeamId) {
             setCurrentTeamId(teams[0].id);
         }
-    }, [teams,currentTeamId,setCurrentTeamId]);
+    }, [teams, currentTeamId, setCurrentTeamId]);
 
 
     const handleClose = () => {
@@ -106,6 +106,17 @@ export default function RecruitCreateDialog({ onClose, onSuccess }: Props) {
                             </div>
                         )}
                     </div>
+
+                    {/* 팀 UUID (디버그용) */}
+                    <div className="flex items-center gap-4">
+                        <label className="w-20 text-sm font-semibold text-gray-500">
+                            Team UUID
+                        </label>
+                        <div className="bg-gray-100 text-xs text-gray-700 px-4 py-2 rounded w-96 border border-gray-300 font-mono select-all">
+                            {currentTeamId}
+                        </div>
+                    </div>
+
 
                     {/* 내용 */}
                     <div>

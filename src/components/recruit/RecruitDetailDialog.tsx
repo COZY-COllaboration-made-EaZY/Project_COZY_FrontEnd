@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { deleteRecruitRequest, updateRecruitRequest } from '@/api/requests/recruit';
 import TeamJoinRequestDialog from '@/components/recruit/TeamJoinRequestDialog';
 
-export type RecruitItem = {
+export type RecruitDetailItem = {
     id: number;
     title: string;
     nickName: string;
@@ -15,10 +15,10 @@ export type RecruitItem = {
 };
 
 interface Props {
-    recruit: RecruitItem | null;
+    recruit: RecruitDetailItem | null;
     onClose: () => void;
     onDeleted?: (id: number) => void;
-    onUpdated?: (item: RecruitItem) => void;
+    onUpdated?: (item: RecruitDetailItem) => void;
 }
 
 export default function RecruitDetailDialog({
@@ -64,7 +64,6 @@ export default function RecruitDetailDialog({
 
     return (
         <>
-            {/* Recruit Detail Dialog */}
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md">
                 <div className="w-full max-w-3xl rounded-2xl bg-white shadow-2xl overflow-hidden">
 
@@ -75,9 +74,9 @@ export default function RecruitDetailDialog({
                                 value={editTitle}
                                 onChange={(e) => setEditTitle(e.target.value)}
                                 className="
-                                    w-full text-2xl font-bold bg-transparent
-                                    border-b-2 border-indigo-400
-                                    focus:outline-none focus:border-indigo-600 transition
+                                    w-full text-2xl font-bold
+                                    bg-transparent border-b-2 border-indigo-300
+                                    focus:outline-none focus:border-indigo-400
                                 "
                             />
                         ) : (
@@ -86,8 +85,8 @@ export default function RecruitDetailDialog({
                             </h2>
                         )}
 
-                        <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
-                            <span>✍{recruit.nickName}</span>
+                        <div className="mt-2 flex justify-between text-sm text-gray-600">
+                            <span>✍ {recruit.nickName}</span>
                             <span>{new Date(recruit.createdAt).toLocaleDateString()}</span>
                         </div>
                     </div>
@@ -99,79 +98,110 @@ export default function RecruitDetailDialog({
                                 value={editContent}
                                 onChange={(e) => setEditContent(e.target.value)}
                                 className="
-                                    w-full h-[360px] p-4 border rounded-xl resize-none
-                                    focus:outline-none focus:ring-2 focus:ring-indigo-400
+                                    w-full h-[360px] p-4
+                                    border border-gray-300 rounded-xl resize-none
+                                    focus:outline-none focus:ring-2 focus:ring-indigo-200
                                 "
                             />
                         ) : (
-                            <div className="
-                                h-[360px] overflow-y-auto pr-2
-                                whitespace-pre-wrap text-gray-800 leading-relaxed
-                            ">
+                            <div className="h-[360px] overflow-y-auto whitespace-pre-wrap text-gray-800">
                                 {recruit.recruitText}
                             </div>
                         )}
                     </div>
 
-                    {/* Extra Info */}
-                    <div className="px-6 py-4 border-t bg-gray-50 text-sm text-gray-500">
-                            팀 ID:
-                        <span className="ml-2 font-medium text-gray-700">{recruit.teamName}</span>
+                    {/* Team Info */}
+                    <div className="px-6 py-4 border-t bg-gray-50 text-sm text-gray-600">
+                        모집 팀:
+                        <span className="ml-2 font-medium text-gray-800">
+                            {recruit.teamName}
+                        </span>
                     </div>
 
-
                     {/* Footer */}
-                    <div className="px-6 py-4 border-t flex items-center bg-white">
+                    <div className="px-6 py-4 border-t flex items-center">
                         {!isEditing && (
+                            /* 팀 가입 신청 – 파스텔 오렌지 */
                             <button
                                 onClick={() => setShowJoinDialog(true)}
                                 className="
                                     px-6 py-3 rounded-xl
-                                    bg-gradient-to-r from-amber-400 to-orange-500
-                                    text-white font-semibold shadow-md
-                                    hover:opacity-90 active:scale-[0.98] transition
+                                    bg-orange-200 text-orange-900
+                                    font-semibold
+                                    hover:bg-orange-300
+                                    transition
                                 "
                             >
                                 팀 가입 신청
                             </button>
                         )}
 
-                        <div className="flex items-center gap-2 ml-auto">
+                        <div className="ml-auto flex gap-2">
                             {isEditing ? (
                                 <>
+                                    {/* 취소 – 파스텔 그레이 */}
                                     <button
                                         onClick={() => setIsEditing(false)}
-                                        className="px-5 py-2 rounded-lg border text-gray-700 hover:bg-gray-100"
+                                        className="
+                                            px-4 py-2 rounded-lg
+                                            bg-slate-200 text-slate-700
+                                            hover:bg-slate-300
+                                        "
                                         disabled={saving}
                                     >
                                         취소
                                     </button>
+
+                                    {/* 저장 – 파스텔 인디고 */}
                                     <button
                                         onClick={handleSave}
                                         disabled={saving}
-                                        className="px-5 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50"
+                                        className="
+                                            px-4 py-2 rounded-lg
+                                            bg-indigo-200 text-indigo-900
+                                            hover:bg-indigo-300
+                                            disabled:opacity-50
+                                        "
                                     >
                                         {saving ? '저장 중...' : '저장'}
                                     </button>
                                 </>
                             ) : (
                                 <>
+                                    {/* 수정 – 파스텔 블루 */}
                                     <button
                                         onClick={() => setIsEditing(true)}
-                                        className="px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                                        className="
+                                            px-4 py-2 rounded-lg
+                                            bg-blue-200 text-blue-900
+                                            hover:bg-blue-300
+                                        "
                                     >
                                         수정
                                     </button>
+
+                                    {/* 삭제 – 파스텔 레드 */}
                                     <button
                                         onClick={handleDelete}
                                         disabled={deleting}
-                                        className="px-5 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                                        className="
+                                            px-4 py-2 rounded-lg
+                                            bg-rose-200 text-rose-900
+                                            hover:bg-rose-300
+                                            disabled:opacity-50
+                                        "
                                     >
-                                        {deleting ? '삭제 중...' : '삭제'}
+                                        삭제
                                     </button>
+
+                                    {/* 닫기 – 파스텔 그레이 */}
                                     <button
                                         onClick={onClose}
-                                        className="px-5 py-2 rounded-lg bg-gray-900 text-white hover:bg-black"
+                                        className="
+                                            px-4 py-2 rounded-lg
+                                            bg-slate-200 text-slate-700
+                                            hover:bg-slate-300
+                                        "
                                     >
                                         닫기
                                     </button>
@@ -181,14 +211,13 @@ export default function RecruitDetailDialog({
                     </div>
                 </div>
             </div>
+
             {showJoinDialog && (
                 <TeamJoinRequestDialog
                     teamId={recruit.teamId}
                     teamName={recruit.teamName}
                     onClose={() => setShowJoinDialog(false)}
-                    onSuccess={() => {
-                        setShowJoinDialog(false);
-                    }}
+                    onSuccess={() => setShowJoinDialog(false)}
                 />
             )}
         </>

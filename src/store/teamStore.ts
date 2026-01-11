@@ -1,8 +1,7 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 export type Team = {
-    id: string;
+    id: string;          // UUID
     teamName: string;
     description: string;
 };
@@ -10,72 +9,51 @@ export type Team = {
 type TeamState = {
     teams: Team[];
     currentTeamId: string;
-    clearCurrentTeam: () => void;
 
     setTeams: (list: Team[]) => void;
     setCurrentTeamId: (id: string | null) => void;
-    addTeam: (team: Team) => void;
-    removeTeam: (id: string) => void;
+    clearCurrentTeam: () => void;
 
     getCurrentTeam: () => Team | null;
-    getCurrentTeamIndex: () => number;
+
+    reset: () => void;
 };
 
-export const useTeamStore = create<TeamState>()(
-    persist(
-        (set, get) => ({
+export const useTeamStore = create<TeamState>((set, get) => ({
+    teams: [],
+    currentTeamId: "",
+
+    setTeams: (list) => {
+        const safeList = Array.isArray(list) ? list : [];
+        const { currentTeamId } = get();
+
+        set({
+            teams: safeList,
+            currentTeamId:
+                currentTeamId ||
+                (safeList.length === 1
+                    ? safeList[0].id
+                    : ""),
+        });
+    },
+
+    setCurrentTeamId: (id) => {
+        set({ currentTeamId: id ?? "" });
+    },
+
+    clearCurrentTeam: () => {
+        set({ currentTeamId: "" });
+    },
+
+    getCurrentTeam: () => {
+        const { teams, currentTeamId } = get();
+        return teams.find((t) => t.id === currentTeamId) ?? null;
+    },
+
+    reset: () => {
+        set({
             teams: [],
             currentTeamId: "",
-
-            setTeams: (list) =>
-                set({ teams: Array.isArray(list) ? list : [] }),
-
-            setCurrentTeamId: (id) =>
-                set({ currentTeamId: id || "" }),
-            clearCurrentTeam: () => set({ currentTeamId: "" }),
-
-            addTeam: (team) =>
-                set((state) => ({
-                    teams: state.teams.some((t) => t.id === team.id)
-                        ? state.teams
-                        : [...state.teams, team],
-                })),
-
-            removeTeam: (id: string) =>
-                set((state) => ({
-                    teams: state.teams.filter((t) => t.id !== id),
-                    currentTeamId:
-                        state.currentTeamId === id ? "" : state.currentTeamId,
-                })),
-
-            getCurrentTeam: () => {
-                const { teams, currentTeamId } = get();
-                return currentTeamId
-                    ? teams.find((t) => t.id === currentTeamId) ?? null
-                    : null;
-            },
-
-            getCurrentTeamIndex: () => {
-                const { teams, currentTeamId } = get();
-                return currentTeamId
-                    ? teams.findIndex((t) => t.id === currentTeamId)
-                    : -1;
-            },
-        }),
-        {
-            name: "teams-store",
-            version: 2,
-
-            migrate: (persisted: any, fromVersion) => {
-                if (fromVersion < 2 && typeof persisted?.state?.currentTeamId === "number") {
-                    persisted.state.currentTeamId = null;
-                }
-                return persisted;
-            },
-            partialize: (s) => ({
-                teams: s.teams,
-                currentTeamId: s.currentTeamId,
-            }),
-        }
-    )
-);
+        });
+    },
+}));

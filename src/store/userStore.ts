@@ -1,9 +1,10 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import apiClient, {authClient} from "@/api/Axios";
+import { authClient } from "@/api/Axios";
+import { useTeamStore } from "@/store/teamStore";
 
 export type User = {
-    id: number;
+    id: string;          // UUID
     email: string;
     nickname: string;
     profileImage?: string;
@@ -16,10 +17,8 @@ type UserState = {
     accessToken: string;
     isHydrated: boolean;
 
-    setUser: (user: User | null) => void;
     login: (user: User, token: string) => void;
     setAccessToken: (token: string) => void;
-    updateProfileImage: (imageUrl: string) => void;
     logout: () => Promise<void>;
 };
 
@@ -31,13 +30,6 @@ export const useUserStore = create<UserState>()(
             accessToken: "",
             isHydrated: false,
 
-            setUser: (user) => {
-                set((state) => ({
-                    user,
-                    isLoggedIn: user ? true : state.isLoggedIn && !!state.accessToken,
-                }));
-            },
-
             login: (user, token) => {
                 set({
                     isLoggedIn: true,
@@ -47,25 +39,17 @@ export const useUserStore = create<UserState>()(
             },
 
             setAccessToken: (token) => {
-                set((state) => ({
+                set({
                     accessToken: token,
-                    isLoggedIn: !!token && (state.isLoggedIn || !!state.user),
-                }));
-            },
-
-            updateProfileImage: (imageUrl) => {
-                set((state) => ({
-                    user: state.user
-                        ? { ...state.user, profileImage: imageUrl }
-                        : null,
-                }));
+                    isLoggedIn: !!token,
+                });
             },
 
             logout: async () => {
                 try {
                     await authClient.post("/api/auth/logout");
                 } catch (e) {
-                    console.warn("Logout request failed:", e);
+                    console.warn("logout api failed", e);
                 }
 
                 set({
@@ -73,8 +57,9 @@ export const useUserStore = create<UserState>()(
                     user: null,
                     accessToken: "",
                 });
-            },
 
+                useTeamStore.getState().reset();
+            },
         }),
         {
             name: "user-store",
