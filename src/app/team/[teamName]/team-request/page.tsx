@@ -26,14 +26,12 @@ export default function TeamJoinRequestPage() {
     const [requests, setRequests] = useState<JoinRequestItem[]>([]);
     const [loading, setLoading] = useState(true);
 
-    /** ✅ 팀이 1개면 무조건 선택 */
     useEffect(() => {
         if (!currentTeamId && teams.length === 1) {
             setCurrentTeamId(teams[0].id);
         }
     }, [teams, currentTeamId, setCurrentTeamId]);
 
-    /** ✅ teamId 확정 후에만 조회 */
     useEffect(() => {
         if (!currentTeamId) {
             setLoading(false);
@@ -57,24 +55,34 @@ export default function TeamJoinRequestPage() {
         fetchRequests();
     }, [currentTeamId]);
 
-    const onApprove = async (requestId: string) => {
+    const onApprove = async (requestId: string, requesterName: string) => {
         try {
-            console.log("approve requestId:", requestId);
             await approveJoinRequest(requestId);
+
+            alert(`${requesterName} 님을 팀에 승낙했습니다.`);
+
             setRequests((prev) =>
                 prev.filter((r) => r.requestId !== requestId)
             );
         } catch (e: any) {
             console.error("approve error", e);
-            alert(e.message);
+            alert("팀 참가 승낙에 실패했습니다.");
         }
     };
 
-    const onReject = async (requestId: string) => {
-        await rejectJoinRequest(requestId);
-        setRequests((prev) =>
-            prev.filter((r) => r.requestId !== requestId)
-        );
+    const onReject = async (requestId: string, requesterName: string) => {
+        try {
+            await rejectJoinRequest(requestId);
+
+            alert(`${requesterName} 님의 팀 참가 요청을 거부했습니다.`);
+
+            setRequests((prev) =>
+                prev.filter((r) => r.requestId !== requestId)
+            );
+        } catch (e: any) {
+            console.error("reject error", e);
+            alert("팀 참가 거부에 실패했습니다.");
+        }
     };
 
     return (
@@ -122,13 +130,14 @@ export default function TeamJoinRequestPage() {
 
                         <div className="flex gap-2">
                             <button
-                                onClick={() => onApprove(r.requestId)}
+                                onClick={() => onApprove(r.requestId, r.requesterName)}
                                 className="rounded-xl bg-black px-3 py-1 text-white text-sm"
                             >
                                 승낙
                             </button>
+
                             <button
-                                onClick={() => onReject(r.requestId)}
+                                onClick={() => onReject(r.requestId, r.requesterName)}
                                 className="rounded-xl bg-gray-200 px-3 py-1 text-sm"
                             >
                                 거부

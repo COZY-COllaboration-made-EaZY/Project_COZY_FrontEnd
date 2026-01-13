@@ -2,11 +2,10 @@
 
 import { useState } from 'react';
 import axios from 'axios';
-
-import { joinTeamRecruitRequest } from '@/api/requests/joinRequest';
 import { ERROR_MESSAGE_MAP } from '@/constants/errorMessage';
 import { isErrorCode } from '@/utils/isErrorCode';
 import { ApiErrorResponse } from '@/types/ErrorResponse';
+import {createJoinRequest} from "@/api/requests/joinRequest";
 
 interface Props {
     teamId: string;
@@ -33,7 +32,7 @@ export default function TeamJoinRequestDialog({
         try {
             setLoading(true);
 
-            await joinTeamRecruitRequest(teamId, message);
+            await createJoinRequest(teamId, message);
 
             onSuccess?.();
             onClose();

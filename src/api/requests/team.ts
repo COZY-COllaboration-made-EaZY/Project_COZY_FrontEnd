@@ -22,6 +22,16 @@ export interface MyTeamResponse {
     teamList?: TeamResponseItem[];
 }
 
+/** 역할 타입 */
+export type TeamRole = "MASTER" | "SUB_MASTER" | "USER";
+
+/** 팀 멤버 */
+export interface TeamMember {
+    memberId: string;
+    nickname: string;
+    role: TeamRole;
+}
+
 // 3. 팀 생성 요청
 export const createTeamRequest = async (dto: CreateTeamDTO) => {
     const res = await apiClient.post("/api/team", dto);
@@ -61,4 +71,31 @@ export const checkTeamNameRequest = async (teamName: string): Promise<boolean> =
         console.error("checkTeamNameRequest error:", e);
         return false;
     }
+};
+
+export type MemberRole = "MASTER" | "SUB_MASTER" | "USER";
+
+export interface TeamMember {
+    memberId: string;
+    nickname: string;
+    role: MemberRole;
+}
+
+export interface MemberListResponse {
+    teamId: string;
+    teamName: string;
+    members: TeamMember[];
+}
+
+/** 팀 멤버 리스트 조회 */
+export const getMemberListRequest = async (
+    teamId: string
+): Promise<MemberListResponse> => {
+    const res = await apiClient.get<MemberListResponse>(
+        "/api/member/list",
+        {
+            params: { teamId },
+        }
+    );
+    return res.data;
 };
