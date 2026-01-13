@@ -1,68 +1,98 @@
+'use client';
+
+import { useEffect, useState } from "react";
+import { useTeamStore } from "@/store/teamStore";
+import { getMemberListRequest } from "@/api/requests/team";
+
+interface TeamMember {
+    userId: string;
+    memberName: string;
+}
+
 export default function TeamUserListPage() {
-    // 예시 데이터
-    const teamMasterName = "없음";
-    const teamSubMasterName = "없음";
-    const teamUserNameList = [
-        "없음",
-    ];
+    const { currentTeamId } = useTeamStore();
+
+    const [members, setMembers] = useState<TeamMember[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!currentTeamId) return;
+
+        const fetchMembers = async () => {
+            try {
+                setLoading(true);
+
+                const data = await getMemberListRequest(currentTeamId);
+
+                // ✅ 실제 응답 구조에 맞게
+                const list: TeamMember[] =
+                    Array.isArray((data as any)?.memberList)
+                        ? (data as any).memberList
+                        : [];
+
+                setMembers(list);
+
+            } catch (e) {
+                console.error("팀 멤버 조회 실패:", e);
+                alert("팀 멤버 조회 실패 (콘솔 확인)");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchMembers();
+    }, [currentTeamId]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center text-gray-500">
+                Loading team members...
+            </div>
+        );
+    }
 
     return (
-        <main className="min-h-screen py-10">
+        <main className="min-h-screen bg-gray-50 py-12 px-4">
+            <div className="mx-auto max-w-4xl space-y-8">
 
-            <div className="mx-auto w-full max-w-4xl border-2 border-gray-700 bg-white shadow-sm">
-                {/* 상단 여백 바(회색) */}
-                <div className="h-10 bg-gray-300 border-b-2 border-gray-700" />
-
-                {/* Team Master */}
-                <section className="border-b-2 border-gray-700">
-                    <div className="bg-gray-200 px-5 py-3 font-semibold border-b-2 border-gray-700">
-                        Team Master
-                    </div>
-                    <div className="px-5 py-3">
-                        <div className="border-2 border-gray-700 px-4 py-3">
-                            {teamMasterName}
-                        </div>
-                    </div>
-                </section>
-
-                {/* Team Sub Master */}
-                <section className="border-b-2 border-gray-700">
-                    <div className="bg-gray-200 px-5 py-3 font-semibold border-b-2 border-gray-700">
-                        Team Sub Master
-                    </div>
-                    <div className="px-5 py-3">
-                        <div className="border-2 border-gray-700 px-4 py-3">
-                            {teamSubMasterName}
-                        </div>
-                    </div>
-                </section>
+                {/* Title */}
+                <header>
+                    <h1 className="text-2xl font-bold text-gray-900">
+                        Team Members
+                    </h1>
+                    <p className="text-sm text-gray-500 mt-1">
+                        팀에 가입된 멤버 목록
+                    </p>
+                </header>
 
                 {/* Team User */}
-                <section className="border-b-2 border-gray-700">
-                    <div className="bg-gray-200 px-5 py-3 font-semibold border-b-2 border-gray-700">
-                        Team User
+                <section className="rounded-xl border bg-white shadow-sm">
+                    <div className="flex items-center justify-between px-5 py-4 border-b">
+                        <h2 className="font-semibold text-gray-900">
+                            👥 Team Users
+                        </h2>
+                        <span className="text-sm text-gray-500">
+                            {members.length}명
+                        </span>
                     </div>
-                    <div className="px-5 py-4">
-                        {/* 큰 리스트 박스 */}
-                        <div className="h-80 border-2 border-gray-700 overflow-auto p-3 space-y-2">
-                            {teamUserNameList.map((name) => (
-                                <div
-                                    key={name}
-                                    className="border border-gray-700 px-3 py-2"
-                                >
-                                    {name}
-                                </div>
-                            ))}
-                            {/* 비어있을 때 표시 예시 */}
-                            {teamUserNameList.length === 0 && (
-                                <div className="text-gray-500">No team users.</div>
-                            )}
-                        </div>
+
+                    <div className="max-h-96 overflow-auto px-5 py-4 space-y-2">
+                        {members.map(member => (
+                            <div
+                                key={member.userId}
+                                className="rounded-lg border px-4 py-3 hover:bg-gray-50 transition"
+                            >
+                                {member.memberName}
+                            </div>
+                        ))}
+
+                        {members.length === 0 && (
+                            <div className="py-16 text-center text-sm text-gray-500">
+                                아직 팀원이 없습니다.
+                            </div>
+                        )}
                     </div>
                 </section>
-
-                {/* 하단 여백 바(회색) */}
-                <div className="h-12 bg-gray-300 border-t-2 border-gray-700" />
             </div>
         </main>
     );
