@@ -2,7 +2,6 @@ import apiClient from "@/api/Axios";
 
 export type LoginResponse = {
     accessToken: string;
-    refreshToken?: string;
 };
 
 export const loginRequest = async (

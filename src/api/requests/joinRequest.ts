@@ -17,13 +17,13 @@ export const getTeamJoinRequests = async (teamId: string) => {
 };
 
 export const approveJoinRequest = async (requestId: string) => {
-    return await apiClient.post(
+    return await apiClient.patch(
         `/api/join-request/${requestId}/approve`
     );
 };
 
 export const rejectJoinRequest = async (requestId: string) => {
-    return await apiClient.post(
+    return await apiClient.patch(
         `/api/join-request/${requestId}/reject`
     );
 };
