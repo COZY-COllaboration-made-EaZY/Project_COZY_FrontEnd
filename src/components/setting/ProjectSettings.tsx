@@ -1,91 +1,88 @@
+// app/project/settings/page.tsx
 'use client';
 
-import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+
 import {
     getProjectDetailRequest,
     updateProjectRequest,
     deleteProjectRequest,
     type ProjectDetail,
     type UpdateProjectDTO,
-} from "@/api/requests/project";
-import EditMode from "@/components/setting/EditMode";
-import ViewMode from "@/components/setting/ViewMode";
+} from '@/api/requests/project';
+
+import ViewMode from '@/components/setting/ViewMode';
+import EditMode from '@/components/setting/EditMode';
+import {useProjectStore} from "@/store/projectStore";
 
 export default function ProjectSettings() {
     const router = useRouter();
-    const params = useParams();
-    const projectNameParam = params?.projectName as string;
+
+    const projectId = useProjectStore(
+        (state) => state.currentProjectId
+    );
 
     const [detail, setDetail] = useState<ProjectDetail | null>(null);
-    const [mode, setMode] = useState<"view" | "edit">("view");
-    const [loading, setLoading] = useState(true);
+    const [mode, setMode] = useState<'view' | 'edit'>('view');
+    const [loading, setLoading] = useState(false);
 
-    const load = async () => {
-        setLoading(true);
-        try {
-            const data = await getProjectDetailRequest(projectNameParam);
-            console.log("Setting data :: "+JSON.stringify(data));
-            setDetail(data);
-        } catch (e) {
-            alert("프로젝트 정보를 불러오지 못했습니다.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
+    // 🔹 상세 조회
     useEffect(() => {
-        if (projectNameParam) load();
-    }, [projectNameParam]);
+        if (!projectId) return;
 
-    const handleEdit = () => setMode("edit");
+        setLoading(true);
+        getProjectDetailRequest(projectId)
+            .then(setDetail)
+            .catch(() => {
+                alert('프로젝트 정보를 불러오지 못했습니다.');
+            })
+            .finally(() => setLoading(false));
+    }, [projectId]);
 
+    if (!projectId) {
+        return <div className="p-6">선택된 프로젝트가 없습니다.</div>;
+    }
+
+    if (loading) {
+        return <div className="p-6">로딩 중...</div>;
+    }
+
+    if (!detail) {
+        return <div className="p-6">프로젝트 정보 없음</div>;
+    }
+
+    // 🔹 삭제
     const handleDelete = async () => {
-        if (!detail) return;
-        const ok = confirm(`프로젝트를 삭제할까요? (${detail.projectName})`);
-        if (!ok) return;
-
-        try {
-            await deleteProjectRequest(detail.projectId);
-            alert("삭제되었습니다.");
-            router.push("/");
-        } catch (e) {
-            alert("삭제에 실패했습니다.");
-        }
+        if (!confirm(`삭제할까요? (${detail.projectName})`)) return;
+        await deleteProjectRequest(detail.projectId);
+        alert('삭제되었습니다.');
+        router.push('/');
     };
 
+    // 🔹 수정
     const handleSave = async (dto: UpdateProjectDTO) => {
-        if (!detail) return;
-        try {
-            await updateProjectRequest(detail.projectId, dto);
-            alert("저장되었습니다.");
-            await load();
-            setMode("view");
-        } catch (e) {
-            alert("업데이트에 실패했습니다.");
-        }
+        await updateProjectRequest(detail.projectId, dto);
+        const updated = await getProjectDetailRequest(detail.projectId);
+        setDetail(updated);
+        setMode('view');
     };
 
-    if (loading) return <div className="p-6">로딩 중...</div>;
-    if (!detail) return <div className="p-6">프로젝트가 없습니다.</div>;
-
-    return mode === "view" ? (
+    return mode === 'view' ? (
         <ViewMode
             data={{
                 projectId: detail.projectId,
                 projectName: detail.projectName,
                 description: detail.description,
-                ownerName: detail.ownerName,
+                ownerName: detail.leaderName,
                 devInterest: detail.devInterest,
                 gitHubUrl: detail.gitHubUrl,
-                createdAt: detail.createdAt,
             }}
-            onEdit={handleEdit}
+            onEdit={() => setMode('edit')}
             onDelete={handleDelete}
         />
     ) : (
         <EditMode
-            key={detail.projectId + "-" + mode}
             initial={{
                 projectId: detail.projectId,
                 projectName: detail.projectName,
@@ -93,10 +90,8 @@ export default function ProjectSettings() {
                 devInterest: detail.devInterest,
                 gitHubUrl: detail.gitHubUrl,
             }}
-            onCancel={() => setMode("view")}
+            onCancel={() => setMode('view')}
             onSave={handleSave}
         />
-
-
     );
 }

@@ -2,15 +2,17 @@
 import apiClient from "@/api/Axios";
 
 export type ProjectDetail = {
-    projectId: number;
+    projectId: string;
     projectName: string;
-    description: string;
     devInterest: string;
-    githubUrl: string;
-    ownerId: string;
-    ownerName: string;
-    createdAt: string;
+    description: string;
+    leaderName: string;
+    gitHubUrl: string | null;
+    teamId: string;
+    leaderId: string;
+    subLeaderId: string | null;
 };
+
 
 export type CreateProjectDTO = {
     projectName: string;
@@ -24,33 +26,32 @@ export type UpdateProjectDTO = {
     projectName: string;
     devInterest: string;
     description: string;
-    githubUrl: string | null;
+    gitHubUrl: string | null;
 };
 
-export type ProjectSummary = {
-    projectId: string;
-    teamId: string;
-    teamName: string;
-    projectName: string;
-    leader: string;
-    description?: string;
-    createdAt: string;
-}
+export const getProjectDetailRequest = async (
+    projectId: string
+): Promise<ProjectDetail> => {
+    const res = await apiClient.get(
+        "/api/project/project-detail-info",
+        { params: { projectId } }
+    );
 
-export const getProjectDetailRequest = async (projectName: string): Promise<ProjectDetail> => {
-    const res = await apiClient.get(`/api/project/detail/${encodeURIComponent(projectName)}`)
     const raw = res.data;
+
     return {
         projectId: raw.projectId,
         projectName: raw.projectName,
-        description: raw.description,
         devInterest: raw.devInterest,
-        githubUrl: raw.githubUrl,
-        ownerId: raw.ownerId,
-        ownerName: raw.ownerName,
-        createdAt: raw.createdAt,
+        description: raw.description,
+        leaderName: raw.leaderName,
+        gitHubUrl: raw.gitHubUrl,
+        teamId: raw.teamId,
+        leaderId: raw.leaderId,
+        subLeaderId: raw.subLeaderId,
     };
 };
+
 
 export const checkProjectNameRequest = async (projectName: string): Promise<boolean> => {
     try {
@@ -73,17 +74,14 @@ export const createProjectSaveRequest = async (dto: CreateProjectDTO) => {
     return res.data;
 };
 
-// 팀의 고유 값 가지고 데이터베이스에서 팀에서 만든 프로젝트 리스트를 가져옴
-export const getMyTeamProjectListRequest = async (teamId : string) => {
-    try {
-        const response = await apiClient.get('/api/project/my-team-project-list',{params: {teamId}});
-        return response.data;
-    } catch (error: any) {
-        console.log(error);
-    }
+export const getMyTeamProjectListRequest = async (teamId: string) => {
+    const res = await apiClient.get('/api/project/my-team-project-list', {
+        params: { teamId },
+    });
+    return res.data;
 };
 
-//프로젝트의 고유 값 가지고 데이터베이스에서 팀에서 만든 프로젝트 리스트중에 하나를 선택하면 그 프로젝트의 아이디를 이용해서 프로젝트의 세부 정보를 가져온다.
+
 export const getMyTeamProjectDetailInfoRequest = async (projectId : string) => {
     console.log("Req :: projectId :: ", projectId);
     try {
@@ -98,12 +96,14 @@ export const getMyTeamProjectDetailInfoRequest = async (projectId : string) => {
 
 }
 
-export const updateProjectRequest = async (projectId: number, dto: UpdateProjectDTO) => {
-    const res = await apiClient.put(`/api/project/${projectId}`, dto);
-    return res.data;
+export const deleteProjectRequest = async (projectId: string) => {
+    await apiClient.delete(`/api/project/${projectId}`);
 };
 
-// 삭제
-export const deleteProjectRequest = async (projectId: number) => {
-    await apiClient.delete(`/api/project/${projectId}`);
+export const updateProjectRequest = async (
+    projectId: string,
+    dto: UpdateProjectDTO
+) => {
+    const res = await apiClient.put(`/api/project/${projectId}`, dto);
+    return res.data;
 };

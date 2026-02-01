@@ -7,7 +7,7 @@ import LoginRequiredDialog from "@/components/public/LoginRequireDialog";
 import {createTaskRequest} from "@/api/requests/task";
 
 interface Props {
-    projectId: number;
+    projectId: string; // UUID
     onClose: () => void;
     onSuccess: () => void;
 }

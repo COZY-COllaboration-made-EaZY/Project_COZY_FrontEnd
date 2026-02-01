@@ -1,22 +1,18 @@
-import TabsHeader from "@/components/project/TabsHeader";
 import React from "react";
+import TabsHeader from "@/components/project/TabsHeader";
 
-export default function ProjectLayout({
-                                          children,
-                                          params,
-                                      }: {
+type Props = {
     children: React.ReactNode;
-    params: { projectName: string };
-}) {
+    params: Promise<{ projectName: string }>;
+};
+
+export default function ProjectLayout({ children, params }: Props) {
+    const { projectName } = React.use(params);
+
     return (
         <div className="flex min-h-screen">
-            {/* 메뉴바*/}
-            <TabsHeader projectName={params.projectName} />
-
-            {/* 오른쪽 메뉴바 */}
-            <main className="flex-1 bg-gray-100 p-8">
-                {children}
-            </main>
+            <TabsHeader projectName={projectName} />
+            <main className="flex-1 bg-gray-100 p-8">{children}</main>
         </div>
     );
 }
