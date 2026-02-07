@@ -1,5 +1,4 @@
-﻿// 프로젝트 이름 중복 확인
-import apiClient from "@/api/Axios";
+﻿import apiClient from "@/api/Axios";
 
 export type ProjectDetail = {
     projectId: string;
