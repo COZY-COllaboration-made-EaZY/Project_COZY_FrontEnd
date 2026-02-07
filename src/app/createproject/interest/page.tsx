@@ -1,5 +1,6 @@
-// app/createproject/interest/page.tsx
 'use client';
+
+export const dynamic = "force-dynamic";
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -11,6 +12,7 @@ const interests: string[] = [
 export default function InterestPage() {
     const searchParams = useSearchParams();
     const projectName = searchParams.get('projectName');
+
     const [selectedInterest, setSelectedInterest] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState('');
     const router = useRouter();
@@ -25,11 +27,11 @@ export default function InterestPage() {
             setErrorMessage("Please select an interest before proceeding.");
             return;
         }
+
         router.push(
-            `/createproject/description?projectName=${encodeURIComponent(projectName!)}&devInterest=${encodeURIComponent(selectedInterest)}`
+            `/createproject/description?projectName=${encodeURIComponent(projectName)}&devInterest=${encodeURIComponent(selectedInterest)}`
         );
     };
-
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -38,15 +40,19 @@ export default function InterestPage() {
                 <div className="mb-6 flex items-center gap-3">
                     <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">2</span>
                     <h1 className="text-2xl font-bold tracking-tight">작업 타입 선택</h1>
-                    <span className="ml-auto rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">Step 2 of 4</span>
+                    <span className="ml-auto rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
+                        Step 2 of 4
+                    </span>
                 </div>
 
                 {/* 요약 배지 */}
                 <div className="mb-4 flex flex-wrap items-center gap-2 text-sm">
-          <span className="rounded-full bg-white px-3 py-1 ring-1 ring-gray-200">
-            <span className="text-gray-500">Project:</span>{" "}
-              <span className="font-medium text-gray-900">{projectName}</span>
-          </span>
+                    <span className="rounded-full bg-white px-3 py-1 ring-1 ring-gray-200">
+                        <span className="text-gray-500">Project:</span>{" "}
+                        <span className="font-medium text-gray-900">
+                            {projectName ?? "—"}
+                        </span>
+                    </span>
                 </div>
 
                 {/* 카드 */}
@@ -85,7 +91,9 @@ export default function InterestPage() {
                     )}
 
                     {errorMessage && (
-                        <p className="mt-3 text-center text-sm text-red-600">{errorMessage}</p>
+                        <p className="mt-3 text-center text-sm text-red-600">
+                            {errorMessage}
+                        </p>
                     )}
 
                     {/* 푸터 버튼 */}
@@ -97,8 +105,8 @@ export default function InterestPage() {
                             이전
                         </button>
                         <button
-                            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow hover:bg-blue-700 active:scale-[0.99]"
                             onClick={handleNext}
+                            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow hover:bg-blue-700 active:scale-[0.99]"
                         >
                             다음
                         </button>
