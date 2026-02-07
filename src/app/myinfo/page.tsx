@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = "force-dynamic";
+
 import { useState } from 'react';
 import { useUserStore } from '@/store/userStore';
 import VerifyPassword from "@/components/Myinfo/VerifyPassword";

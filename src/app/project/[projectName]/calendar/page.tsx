@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = "force-dynamic";
+
 import { useEffect, useMemo, useState } from 'react';
 import { useProjectStore } from "@/store/projectStore";
 import { getTaskListRequest } from "@/api/requests/task";

@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useTranslation } from "react-i18next";
 import { DashboardCenter } from "@/components/team/DashboardCenter";
 import { DashboardRight } from "@/components/team/DashBoardRight";
