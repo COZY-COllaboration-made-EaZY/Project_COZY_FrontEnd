@@ -1,0 +1,120 @@
+﻿'use client';
+
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+
+const interests: string[] = [
+    'Back-End', 'Front-End', 'AI', 'Game-Client', 'Full-Stack', 'Native-App'
+];
+
+export default function InterestClient() {
+    const searchParams = useSearchParams();
+    const projectName = searchParams.get('projectName');
+
+    const [selectedInterest, setSelectedInterest] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState('');
+    const router = useRouter();
+
+    const toggleInterest = (interest: string) => {
+        setSelectedInterest(prev => (prev === interest ? null : interest));
+        setErrorMessage("");
+    };
+
+    const handleNext = () => {
+        if (!projectName || !selectedInterest) {
+            setErrorMessage("Please select an interest before proceeding.");
+            return;
+        }
+
+        router.push(
+            `/createproject/description?projectName=${encodeURIComponent(projectName)}&devInterest=${encodeURIComponent(selectedInterest)}`
+        );
+    };
+
+    return (
+        <div className="min-h-screen bg-gray-50">
+            <div className="mx-auto w-full max-w-3xl px-6 py-10">
+                {/* ?ㅽ뀦 ?ㅻ뜑 */}
+                <div className="mb-6 flex items-center gap-3">
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">2</span>
+                    <h1 className="text-2xl font-bold tracking-tight">?묒뾽 ????좏깮</h1>
+                    <span className="ml-auto rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
+                        Step 2 of 4
+                    </span>
+                </div>
+
+                {/* ?붿빟 諛곗? */}
+                <div className="mb-4 flex flex-wrap items-center gap-2 text-sm">
+                    <span className="rounded-full bg-white px-3 py-1 ring-1 ring-gray-200">
+                        <span className="text-gray-500">Project:</span>{" "}
+                        <span className="font-medium text-gray-900">
+                            {projectName ?? "??"}
+                        </span>
+                    </span>
+                </div>
+
+                {/* 移대뱶 */}
+                <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
+                    <p className="mb-4 text-sm text-gray-600">
+                        ???留욌뒗 ?쒗뵆由?異붿쿇???꾪빐 ?묒뾽 ??낆쓣 ?좏깮??二쇱꽭??
+                    </p>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        {interests.map((interest) => {
+                            const active = selectedInterest === interest;
+                            return (
+                                <button
+                                    key={interest}
+                                    onClick={() => toggleInterest(interest)}
+                                    className={[
+                                        "rounded-xl border px-4 py-3 text-left text-sm font-medium transition",
+                                        active
+                                            ? "border-purple-600 bg-purple-600 text-white shadow-sm"
+                                            : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
+                                    ].join(" ")}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <span>{interest}</span>
+                                        {active && <span className="text-xs">?뷂툗</span>}
+                                    </div>
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {selectedInterest && (
+                        <div className="mt-5 rounded-xl bg-purple-50 p-3 text-center text-sm text-purple-700 ring-1 ring-purple-200">
+                            Selected: <span className="font-semibold">{selectedInterest}</span>
+                        </div>
+                    )}
+
+                    {errorMessage && (
+                        <p className="mt-3 text-center text-sm text-red-600">
+                            {errorMessage}
+                        </p>
+                    )}
+
+                    {/* ?명꽣 踰꾪듉 */}
+                    <div className="mt-6 flex items-center justify-between">
+                        <button
+                            onClick={() => router.push(`/createproject?from=interest`)}
+                            className="rounded-lg px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-gray-300 hover:bg-gray-50"
+                        >
+                            ?댁쟾
+                        </button>
+                        <button
+                            onClick={handleNext}
+                            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow hover:bg-blue-700 active:scale-[0.99]"
+                        >
+                            ?ㅼ쓬
+                        </button>
+                    </div>
+                </div>
+
+                <p className="mt-4 text-xs text-gray-500">
+                    ?꾩슂 ???꾨줈?앺듃 ?ㅼ젙?먯꽌 ?묒뾽 ??낆쓣 ?ㅼ떆 蹂寃쏀븷 ???덉뒿?덈떎.
+                </p>
+            </div>
+        </div>
+    );
+}
