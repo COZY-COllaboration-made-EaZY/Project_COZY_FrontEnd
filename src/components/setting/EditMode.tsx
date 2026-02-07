@@ -3,7 +3,7 @@ import type { UpdateProjectDTO } from "@/api/requests/project";
 
 type EditProps = {
     initial: {
-        projectId: number;
+        projectId: string;
         projectName: string;
         description: string;
         devInterest: string;

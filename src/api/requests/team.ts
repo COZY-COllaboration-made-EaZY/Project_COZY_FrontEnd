@@ -1,5 +1,5 @@
 import apiClient from "@/api/Axios";
-import {Team, useTeamStore} from "@/store/teamStore";
+import {Team} from "@/store/teamStore";
 
 export interface CreateTeamDTO {
     teamName?: string;
@@ -30,6 +30,20 @@ export interface TeamMember {
     memberId: string;
     nickname: string;
     role: TeamRole;
+}
+
+export type MemberRole = "MASTER" | "SUB_MASTER" | "USER";
+
+export interface TeamMember {
+    memberId: string;
+    nickname: string;
+    role: MemberRole;
+}
+
+export interface MemberListResponse {
+    teamId: string;
+    teamName: string;
+    members: TeamMember[];
 }
 
 // 3. 팀 생성 요청
@@ -73,19 +87,7 @@ export const checkTeamNameRequest = async (teamName: string): Promise<boolean> =
     }
 };
 
-export type MemberRole = "MASTER" | "SUB_MASTER" | "USER";
 
-export interface TeamMember {
-    memberId: string;
-    nickname: string;
-    role: MemberRole;
-}
-
-export interface MemberListResponse {
-    teamId: string;
-    teamName: string;
-    members: TeamMember[];
-}
 
 /** 팀 멤버 리스트 조회 */
 export const getMemberListRequest = async (
@@ -98,4 +100,32 @@ export const getMemberListRequest = async (
         }
     );
     return res.data;
+};
+
+export const getTeamDetailInfoRequest = async (teamId: string) => {
+    const res = await apiClient.get("/api/team/get-team-detail-info", {
+        params: {
+            team: teamId,
+        },
+    });
+    return res.data;
+};
+
+export type UpdateTeamRequest = {
+    teamId: string;
+    description: string;
+};
+
+export const updateTeamRequest = async (payload: UpdateTeamRequest) => {
+    const res = await apiClient.patch("/api/team", payload);
+    return res.data; // TeamDetailDTO
+};
+
+
+export const deleteTeamRequest = async (teamId: string) => {
+    await apiClient.delete("/api/team", {
+        params: {
+            team: teamId,
+        },
+    });
 };

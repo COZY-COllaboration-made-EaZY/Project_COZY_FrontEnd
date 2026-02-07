@@ -16,7 +16,6 @@ export default function ProjectBoardPage() {
 
     useEffect(() => {
         if (!projectId) return;
-        console.log(" dashboard , projectId :: ", projectId);
         const fetchProject = async () => {
             const data = await getMyTeamProjectDetailInfoRequest(projectId);
             setProject(data);

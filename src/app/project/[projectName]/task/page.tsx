@@ -1,76 +1,96 @@
 'use client';
 
-import {useEffect, useState} from 'react';
-import {getTaskListRequest} from '@/api/requests/task';
-import TaskDetailDialog from '@/components/task/TaskDetilDialog';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+import TaskTable, { Task } from '@/components/task/TaskTable';
 import TaskCreateDialog from '@/components/task/TaskCreateDialog';
-import {useProjectStore} from '@/store/projectStore';
-import {getMyProjectInfoRequest} from '@/api/requests/project';
-import TaskTable, {Task} from "@/components/task/TaskTable";
-import {router} from "next/client";
+
+import { getTaskListRequest } from '@/api/requests/task';
+import { getMyTeamProjectListRequest } from '@/api/requests/project';
+
+import { useProjectStore } from '@/store/projectStore';
+import { useTeamStore } from '@/store/teamStore';
+import TaskDetailDialog from "@/components/task/TaskDetilDialog";
 
 export default function TaskPage() {
+    const router = useRouter();
+
+    const { currentTeamId } = useTeamStore();
+    const { currentProjectId, setCurrentProjectId, hasHydrated } =
+        useProjectStore();
+
     const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState(false);
     const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
     const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-    const {currentProjectId, setCurrentProjectId} = useProjectStore();
-
     useEffect(() => {
-        const fetchProject = async () => {
-            const info = await getMyProjectInfoRequest();
-            if (info?.projectId) {
-                setCurrentProjectId(info.projectId);
-            } else {
-                router.push('/project/create');
-            }
-        };
-        fetchProject();
+        useProjectStore.persist?.rehydrate?.();
     }, []);
 
+    useEffect(() => {
+        if (!hasHydrated || !currentTeamId) return;
 
-    const reload = async () => {
-        if (!currentProjectId) return;
-        try {
-            setLoading(true);
-            const list = await getTaskListRequest(currentProjectId);
-            setTasks(list ?? []);
-        } catch (e) {
-            console.error('Task 불러오기 실패', e);
-        } finally {
-            setLoading(false);
-        }
-    };
+        const run = async () => {
+            if (currentProjectId) return;
+
+            const data = await getMyTeamProjectListRequest(currentTeamId);
+
+            if (!data?.hasProject) {
+                router.push('/project/create');
+                return;
+            }
+
+            if (data.projects.length === 1) {
+                setCurrentProjectId(data.projects[0].projectId);
+            } else {
+                router.push('/project/select');
+            }
+        };
+
+        run();
+    }, [hasHydrated, currentTeamId]);
 
     useEffect(() => {
-        if (currentProjectId) reload();
-    }, [currentProjectId]);
+        if (!hasHydrated || !currentProjectId) return;
+
+        const run = async () => {
+            try {
+                setLoading(true);
+                const list = await getTaskListRequest(currentProjectId);
+                setTasks(Array.isArray(list) ? list : []);
+            } catch (e) {
+                console.error(e);
+                setTasks([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        run();
+    }, [hasHydrated, currentProjectId]);
 
     return (
-        <div className="min-h-screen bg-gray-100">
-            <div className="mx-auto max-w-screen-xl px-6 py-8">
-                <TaskTable
-                    tasks={tasks}
-                    loading={loading}
-                    onRowClick={(id) => setSelectedTaskId(id)}
-                    onAddClick={() => setIsCreateOpen(true)}
-                />
-            </div>
+        <div className="p-8">
+            <TaskTable
+                tasks={tasks}
+                loading={loading}
+                onRowClick={(id) => setSelectedTaskId(id)}
+                onAddClick={() => setIsCreateOpen(true)}
+            />
 
             {isCreateOpen && currentProjectId && (
                 <TaskCreateDialog
                     projectId={currentProjectId}
                     onClose={() => setIsCreateOpen(false)}
-                    onSuccess={async () => {
-                        await reload();
-                        setIsCreateOpen(false);
-                    }}
+                    onSuccess={() => setIsCreateOpen(false)}
                 />
             )}
-            
-            {selectedTaskId && (
+
+            {selectedTaskId !== null && currentProjectId && (
                 <TaskDetailDialog
+                    projectId={currentProjectId}
                     taskId={selectedTaskId}
                     onClose={() => setSelectedTaskId(null)}
                 />

@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import SectionCard from "./ui/SectionCard";
 import Field from "./ui/Field";
-import TagInput from "./ui/TagInput";
-import {TeamForm} from "@/app/team/[teamName]/team-setting/page";
+import {TeamForm} from "@/components/team/team-setting/TeamSettingClient";
 
 export default function EditPanel({
                                       initial,
@@ -17,50 +16,42 @@ export default function EditPanel({
 }) {
     const [form, setForm] = useState<TeamForm>(initial);
 
+    useEffect(() => {
+        setForm(initial);
+    }, [initial]);
+
     return (
         <section className="space-y-6">
             <div className="grid gap-5 md:grid-cols-2">
                 <Field
                     label="Team Name:"
                     value={form.teamName}
-                    onChange={(v) => setForm((s) => ({ ...s, teamName: v }))}
-                    placeholder="팀 이름을 입력"
+                    onChange={(v) =>
+                        setForm((s) => ({ ...s, teamName: v }))
+                    }
                 />
-                <Field
-                    label="CreateDay:"
-                    type="date"
-                    value={form.createDay}
-                    onChange={(v) => setForm((s) => ({ ...s, createDay: v }))}
-                />
+                <Field label="Owner:" value={form.owner} disabled />
             </div>
 
+            {/* 설명 */}
             <SectionCard>
-                <label className="mb-2 block text-lg font-bold">Description:</label>
+                <label className="mb-2 block text-lg font-bold">
+                    Description
+                </label>
                 <textarea
-                    className="w-full rounded-xl border border-black/10 bg-white p-3 outline-none ring-0 focus:border-black/30"
+                    className="w-full rounded-xl border border-black/10 bg-white p-3 outline-none focus:border-black/30"
                     rows={6}
                     value={form.description}
                     onChange={(e) =>
-                        setForm((s) => ({ ...s, description: e.target.value }))
+                        setForm((s) => ({
+                            ...s,
+                            description: e.target.value,
+                        }))
                     }
-                    placeholder="팀 설명을 입력하세요"
                 />
             </SectionCard>
 
-            <div className="grid gap-5 md:grid-cols-2">
-                <Field
-                    label="Owner :"
-                    value={form.owner}
-                    onChange={(v) => setForm((s) => ({ ...s, owner: v }))}
-                    placeholder="소유자"
-                />
-                <TagInput
-                    label="DevInterest :"
-                    values={form.devInterests}
-                    onChange={(next) => setForm((s) => ({ ...s, devInterests: next }))}
-                />
-            </div>
-
+            {/* 액션 */}
             <div className="mt-6 flex items-center justify-end gap-3">
                 <button
                     onClick={onCancel}
@@ -75,7 +66,11 @@ export default function EditPanel({
                     Update Team
                 </button>
                 <button
-                    onClick={onDelete}
+                    onClick={() => {
+                        if (confirm("정말 이 팀을 삭제하시겠습니까?")) {
+                            onDelete();
+                        }
+                    }}
                     className="rounded-xl bg-red-600 px-5 py-2 text-white hover:brightness-110"
                 >
                     Delete Team
