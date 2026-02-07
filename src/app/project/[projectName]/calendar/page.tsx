@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useProjectStore } from "@/store/projectStore";
 import { getTaskListRequest } from "@/api/requests/task";
-import { getMyProjectInfoRequest } from "@/api/requests/project";
 
 const weekDays = ['월', '화', '수', '목', '금'];
 
@@ -23,16 +22,6 @@ export default function CalendarPage() {
 
     const [posts, setPosts] = useState<Task[]>([]);
     const { currentProjectId, setCurrentProjectId } = useProjectStore();
-
-
-    useEffect(() => {
-        (async () => {
-            if (!currentProjectId) {
-                const info = await getMyProjectInfoRequest();
-                if (info?.projectId) setCurrentProjectId(info.projectId);
-            }
-        })();
-    }, [currentProjectId, setCurrentProjectId]);
 
     useEffect(() => {
         (async () => {
