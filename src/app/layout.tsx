@@ -2,7 +2,6 @@ import './globals.css';
 import localFont from 'next/font/local';
 import React from "react";
 import ClientWrapper from "@/components/common/ClientWrapper";
-import "../i18n";
 
 const pretendard = localFont({
     src: '../fonts/PretendardVariable.woff2',

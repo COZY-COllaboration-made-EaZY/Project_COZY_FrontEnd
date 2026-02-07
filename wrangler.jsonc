@@ -1,0 +1,24 @@
+/**
+ * OpenNext Cloudflare adapter config.
+ * This file is used by `opennextjs-cloudflare` and Wrangler.
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "my-app",
+  "compatibility_date": "2024-12-30",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "main": ".open-next/worker.js",
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "my-app"
+    }
+  ],
+  "images": {
+    "binding": "IMAGES"
+  }
+}
