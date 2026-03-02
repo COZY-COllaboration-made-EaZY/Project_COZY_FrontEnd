@@ -1,20 +1,29 @@
-'use client'
+'use client';
 
 import Link from 'next/link';
 import AvatarMenu from './AvatarMenu';
 import Logo from '../../logo/LogiImg.svg';
 import Image from 'next/image';
 import {useTranslation} from "react-i18next";
+import { useEffect, useState } from "react";
+import { useThemeStore } from "@/store/themeStore";
 
 export default function Header() {
     const { t } = useTranslation();
+    const { initTheme } = useThemeStore();
+    const [open, setOpen] = useState(false);
+
+    useEffect(() => {
+        initTheme();
+    }, [initTheme]);
+
     return (
         <header
             className="
                 fixed top-0 z-20 w-full
-                bg-gradient-to-r from-[#8B7CF6]/40 to-[#AA92FF]/40
+                theme-header
                 backdrop-blur-xl
-                border-b border-white/20
+                border-white/20
     "
         >
             <div className="h-16 flex items-center justify-between px-4 md:px-6">
@@ -64,8 +73,44 @@ export default function Header() {
                     </nav>
                 </div>
 
-                <AvatarMenu />
+                <div className="flex items-center gap-2 md:gap-3">
+                    <button
+                        className="md:hidden rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90 transition hover:bg-white/20"
+                        onClick={() => setOpen((v) => !v)}
+                        aria-label="Toggle menu"
+                    >
+                        {open ? t('common.close') : t('common.menu')}
+                    </button>
+                    <AvatarMenu />
+                </div>
             </div>
+            {open && (
+                <div className="md:hidden border-t border-white/10 px-4 pb-4 pt-2">
+                    <nav className="flex flex-col gap-2">
+                        <Link
+                            href="/feature"
+                            className="rounded-lg px-3 py-2 text-sm font-semibold text-white/90 hover:bg-white/10"
+                            onClick={() => setOpen(false)}
+                        >
+                            {t("nav.feature")}
+                        </Link>
+                        <Link
+                            href="/recruit"
+                            className="rounded-lg px-3 py-2 text-sm font-semibold text-white/90 hover:bg-white/10"
+                            onClick={() => setOpen(false)}
+                        >
+                            {t("nav.recruit")}
+                        </Link>
+                        <Link
+                            href="/help"
+                            className="rounded-lg px-3 py-2 text-sm font-semibold text-white/90 hover:bg-white/10"
+                            onClick={() => setOpen(false)}
+                        >
+                            {t("nav.help")}
+                        </Link>
+                    </nav>
+                </div>
+            )}
         </header>
 
     );

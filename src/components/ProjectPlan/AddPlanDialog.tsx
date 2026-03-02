@@ -1,6 +1,7 @@
 'use client';
 
 import React, {useState} from "react";
+import { useTranslation } from "react-i18next";
 
 interface AddPlanDialogProps {
     open: boolean;
@@ -8,8 +9,9 @@ interface AddPlanDialogProps {
 }
 
 export default function AddPlanDialog({ open, onClose }: AddPlanDialogProps) {
+    const { t } = useTranslation();
 
-    const [description, setDescription] = useState("춘식이 일본");
+    const [description, setDescription] = useState(t('plan.sampleDescription'));
 
     if (!open) return null;
 
@@ -21,70 +23,70 @@ export default function AddPlanDialog({ open, onClose }: AddPlanDialogProps) {
 
 
     return (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-            <div className="bg-gray-200 p-6 w-[600px] rounded shadow relative">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50">
+            <div className="theme-card w-full max-w-2xl rounded-2xl p-4 text-white relative sm:p-6">
                 <button onClick={onClose} className="absolute top-3 right-4 text-xl">×</button>
 
-                <h2 className="text-lg font-bold mb-4">계획추가</h2>
+                <h2 className="text-lg font-bold mb-4">{t('plan.addTitle')}</h2>
 
-                <form onSubmit={handleSave} className="grid grid-cols-2 gap-4">
-                    <div className="col-span-2">
-                        <label className="block text-sm">프로젝트명</label>
-                        <input className="w-full border px-2 py-1 mt-1" defaultValue="춘식이 일본" />
+                <form onSubmit={handleSave} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="col-span-1 sm:col-span-2">
+                        <label className="block text-sm text-white/80">{t('plan.projectName')}</label>
+                        <input className="w-full border border-white/30 bg-white/90 text-slate-900 px-2 py-1 mt-1 rounded" defaultValue={t('plan.sampleProjectName')} />
                     </div>
 
                     <div>
-                        <label className="block text-sm">유형</label>
-                        <input className="w-full border px-2 py-1 mt-1" defaultValue="진행" />
+                        <label className="block text-sm text-white/80">{t('plan.type')}</label>
+                        <input className="w-full border border-white/30 bg-white/90 text-slate-900 px-2 py-1 mt-1 rounded" defaultValue={t('plan.sampleType')} />
                     </div>
 
                     <div>
-                        <label className="block text-sm">상태</label>
+                        <label className="block text-sm text-white/80">{t('plan.status')}</label>
                         <select
-                            className="w-full border px-2 py-1 mt-1"
+                            className="w-full border border-white/30 bg-white/90 text-slate-900 px-2 py-1 mt-1 rounded"
                             defaultValue="시작 전"
                         >
-                            <option value="시작 전">시작 전</option>
-                            <option value="진행 중">진행 중</option>
-                            <option value="검토 중">검토 중</option>
-                            <option value="승인 중">승인 중</option>
-                            <option value="머지 신청">머지 신청</option>
-                            <option value="머지 완료">머지 완료</option>
+                            <option value="시작 전">{t('task.status.todo')}</option>
+                            <option value="진행 중">{t('task.status.inProgress')}</option>
+                            <option value="검토 중">{t('task.status.inReview')}</option>
+                            <option value="승인 중">{t('task.status.inApproval')}</option>
+                            <option value="머지 신청">{t('task.status.mergeRequest')}</option>
+                            <option value="머지 완료">{t('task.status.mergeDone')}</option>
                         </select>
                     </div>
 
 
-                    <div className="col-span-2">
-                        <label className="block text-sm">설명</label>
+                    <div className="col-span-1 sm:col-span-2">
+                        <label className="block text-sm text-white/80">{t('plan.description')}</label>
                         <textarea
-                            className="..."
+                            className="w-full h-28 border border-white/30 bg-white/90 text-slate-900 px-2 py-1 mt-1 rounded"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm">담당자</label>
-                        <input className="w-full border px-2 py-1 mt-1" defaultValue="시바도경" />
+                        <label className="block text-sm text-white/80">{t('plan.assignee')}</label>
+                        <input className="w-full border border-white/30 bg-white/90 text-slate-900 px-2 py-1 mt-1 rounded" defaultValue={t('plan.sampleAssignee')} />
                     </div>
 
                     <div>
-                        <label className="block text-sm">보고자</label>
-                        <input className="w-full border px-2 py-1 mt-1" defaultValue="시바도경" />
+                        <label className="block text-sm text-white/80">{t('plan.reporter')}</label>
+                        <input className="w-full border border-white/30 bg-white/90 text-slate-900 px-2 py-1 mt-1 rounded" defaultValue={t('plan.sampleReporter')} />
                     </div>
 
-                    <div className="col-span-2">
-                        <label className="block text-sm">기한</label>
-                        <input className="w-full border px-2 py-1 mt-1" placeholder="yyyy-mm-dd" type="date" />
+                    <div className="col-span-1 sm:col-span-2">
+                        <label className="block text-sm text-white/80">{t('plan.deadline')}</label>
+                        <input className="w-full border border-white/30 bg-white/90 text-slate-900 px-2 py-1 mt-1 rounded" placeholder="yyyy-mm-dd" type="date" />
                     </div>
 
 
-                    <div className="col-span-2 mt-4 flex justify-end">
+                    <div className="col-span-1 sm:col-span-2 mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                         <button
                             type="submit"
-                            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+                            className="theme-btn-primary px-6 py-2 rounded hover:brightness-110 w-full sm:w-auto"
                         >
-                            저장
+                            {t('common.save')}
                         </button>
                     </div>
                 </form>

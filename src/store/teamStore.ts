@@ -4,6 +4,8 @@ export type Team = {
     id: string;          // UUID
     teamName: string;
     description: string;
+    memberCount?: number;
+    projectCount?: number;
 };
 
 type TeamState = {

@@ -1,12 +1,26 @@
 import apiClient from "@/api/Axios";
-import {useUserStore} from "@/store/userStore";
 
-export const getCurrentUserRequest = async (): Promise<any | undefined> => {
+export type CurrentUserInfo = {
+    userId: string;
+    email: string;
+    nickname: string;
+    profileImageUrl: string | null;
+    statusMessage: string | null;
+    themeMode: string | null;
+    notificationsEmail: boolean;
+    notificationsPush: boolean;
+    digestWeekly: boolean;
+    profileVisible: boolean;
+    locale: string | null;
+};
+
+export const getCurrentUserRequest = async (): Promise<CurrentUserInfo | undefined> => {
     try {
         const response = await apiClient.get('/api/user/check-current');
         return response.data;
-    } catch (error: any) {
-        console.error("유저 정보 조회 실패:", error?.message || error);
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error("유저 정보 조회 실패:", message);
         return undefined;
     }
 };
@@ -14,14 +28,14 @@ export const getCurrentUserRequest = async (): Promise<any | undefined> => {
 export const updateUserInfoRequest = async (
     nickname: string,
     statusMessage: string,
-    // profileImage?: File
+    profileImage?: File
 ) => {
     const formData = new FormData();
     formData.append("nickname", nickname);
     formData.append("statusMessage", statusMessage);
-    // if (profileImage) {
-    //     formData.append("profileImage", profileImage);
-    // }
+    if (profileImage) {
+        formData.append("profileImage", profileImage);
+    }
 
     const response = await apiClient.post("/api/user/update", formData);
     return response.data;

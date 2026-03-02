@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import KakaoLogo from '@/assets/icons/kakao.svg';
 import Image from 'next/image';
+import { useTranslation } from "react-i18next";
 
 import {
   AlertDialog,
@@ -36,6 +37,7 @@ declare global {
 }
 
 const KakaoLogin: React.FC<Props> = ({ enabled = false }) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -79,21 +81,21 @@ const KakaoLogin: React.FC<Props> = ({ enabled = false }) => {
             variant="outline"
         >
           <Image src={KakaoLogo} alt="카카오 로고" width={24} height={24} />
-          {enabled ? '카카오 로그인' : '카카오 로그인 (미구현)'}
+          {enabled ? t('auth.kakaoLogin') : t('auth.kakaoLoginDisabled')}
         </Button>
 
         {/* 미구현 안내 모달 */}
         <AlertDialog open={open} onOpenChange={setOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>아직 준비 중입니다</AlertDialogTitle>
+              <AlertDialogTitle>{t('auth.kakaoLoginComingTitle')}</AlertDialogTitle>
               <AlertDialogDescription>
-                카카오 로그인 기능은 현재 개발 중입니다. 이메일/비밀번호 로그인을 먼저 이용해 주세요.
+                {t('auth.kakaoLoginComingDesc')}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>닫기</AlertDialogCancel>
-              <AlertDialogAction onClick={() => setOpen(false)}>확인</AlertDialogAction>
+              <AlertDialogCancel>{t('common.close')}</AlertDialogCancel>
+              <AlertDialogAction onClick={() => setOpen(false)}>{t('common.ok')}</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

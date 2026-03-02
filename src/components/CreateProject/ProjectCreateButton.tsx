@@ -1,14 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { useUserStore } from '@/store/userStore';
+import { useTranslation } from "react-i18next";
 
 export default function ProjectCreateButton() {
-    const { isLoggedIn } = useUserStore();
-    const router = useRouter();
-    const [projectName, setProjectName] = useState<string | null>(null);
+    const { t } = useTranslation();
+    const projectName: string | null = null;
 
     // useEffect(() => {
     //     if (!isLoggedIn) return;
@@ -44,7 +41,7 @@ export default function ProjectCreateButton() {
         <Button
             className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md"
         >
-            {projectName ? '내 프로젝트로 이동' : '새 프로젝트 생성'}
+            {projectName ? t('createProject.goToMyProject') : t('createProject.newProject')}
         </Button>
 
     );

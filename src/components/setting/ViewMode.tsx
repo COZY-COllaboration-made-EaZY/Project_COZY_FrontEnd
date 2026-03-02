@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslation } from "react-i18next";
+
 export type ViewProject = {
     projectId: string;
     projectName: string;
@@ -16,28 +18,29 @@ type Props = {
 };
 
 export default function ViewMode({ data, onEdit, onDelete }: Props) {
+    const { t } = useTranslation();
     return (
-        <section className="mt-6 rounded-xl bg-white/70 ring-1 ring-stone-300/60 shadow">
+        <section className="theme-card rounded-3xl">
             {/* Header */}
-            <div className="flex items-center justify-between border-b p-5">
+            <div className="flex flex-col gap-3 border-b border-white/20 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
                 <div>
-                    <h2 className="text-lg font-semibold text-stone-900">
+                    <h2 className="text-lg font-semibold text-white">
                         {data.projectName}
                     </h2>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
                     <button
                         onClick={onEdit}
-                        className="rounded-md bg-stone-800 px-4 py-2 text-sm font-medium text-white hover:bg-stone-900"
+                        className="theme-btn-primary rounded-md px-4 py-2 text-sm font-semibold transition hover:brightness-110 w-full sm:w-auto"
                     >
-                        Edit
+                        {t('common.edit')}
                     </button>
                     <button
                         onClick={onDelete}
-                        className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+                        className="theme-btn-secondary rounded-md px-4 py-2 text-sm font-semibold transition hover:brightness-110 w-full sm:w-auto"
                     >
-                        Delete
+                        {t('common.delete')}
                     </button>
                 </div>
             </div>
@@ -45,49 +48,49 @@ export default function ViewMode({ data, onEdit, onDelete }: Props) {
             {/* Content */}
             <div className="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
                 {/* Overview */}
-                <div className="rounded-xl border border-stone-200 bg-white/70 p-5">
-                    <h3 className="mb-3 text-sm font-semibold text-stone-700">
-                        Overview
+                <div className="theme-card rounded-2xl p-5">
+                    <h3 className="mb-3 text-sm font-semibold text-white/80">
+                        {t('projectSettings.sections.overview')}
                     </h3>
 
-                    <dl className="grid grid-cols-[120px_1fr] gap-x-4 gap-y-3 text-sm">
-                        <dt className="text-stone-500">Owner</dt>
-                        <dd className="font-medium text-stone-800">
-                            {data.ownerName || "Unknown"}
+                    <dl className="grid grid-cols-[120px_1fr] gap-x-4 gap-y-3 text-sm text-white/80">
+                        <dt className="text-white/60">{t('projectSettings.fields.owner')}</dt>
+                        <dd className="font-medium text-white">
+                            {data.ownerName || t('projectSettings.unknown')}
                         </dd>
 
-                        <dt className="text-stone-500">Dev Interest</dt>
+                        <dt className="text-white/60">{t('projectSettings.fields.devInterest')}</dt>
                         <dd>
-              <span className="inline-flex items-center rounded-full border border-stone-300 bg-stone-50 px-2 py-0.5 text-xs font-medium text-stone-700">
-                {data.devInterest}
-              </span>
+                            <span className="inline-flex items-center rounded-full border border-white/30 bg-white/15 px-2 py-0.5 text-xs font-medium text-white/90">
+                                {data.devInterest}
+                            </span>
                         </dd>
 
-                        <dt className="text-stone-500">GitHub</dt>
+                        <dt className="text-white/60">{t('projectSettings.fields.gitHub')}</dt>
                         <dd>
                             {data.gitHubUrl ? (
                                 <a
                                     href={data.gitHubUrl}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="break-all underline underline-offset-2 hover:opacity-80"
+                                    className="break-all text-white/90 underline underline-offset-2 hover:opacity-80"
                                 >
                                     {data.gitHubUrl}
                                 </a>
                             ) : (
-                                <span className="text-stone-400">No Git URL</span>
+                                <span className="text-white/50">{t('projectSettings.noGitUrl')}</span>
                             )}
                         </dd>
                     </dl>
                 </div>
 
                 {/* Description */}
-                <div className="rounded-xl border border-stone-200 bg-white/70 p-5">
-                    <h3 className="mb-3 text-sm font-semibold text-stone-700">
-                        Description
+                <div className="theme-card rounded-2xl p-5">
+                    <h3 className="mb-3 text-sm font-semibold text-white/80">
+                        {t('projectSettings.sections.description')}
                     </h3>
-                    <p className="whitespace-pre-wrap text-sm leading-6 text-stone-800">
-                        {data.description || "No description"}
+                    <p className="whitespace-pre-wrap text-sm leading-6 text-white/80">
+                        {data.description || t('projectSettings.noDescription')}
                     </p>
                 </div>
             </div>

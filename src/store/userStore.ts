@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { authClient } from "@/api/Axios";
+import { authClient, resetTokenExpiryAlert } from "@/api/Axios";
 import { useTeamStore } from "@/store/teamStore";
 
 export type User = {
@@ -18,6 +18,7 @@ type UserState = {
     isHydrated: boolean;
 
     login: (user: User, token: string) => void;
+    setUser: (user: User | null) => void;
     setAccessToken: (token: string) => void;
     logout: () => Promise<void>;
 };
@@ -31,10 +32,18 @@ export const useUserStore = create<UserState>()(
             isHydrated: false,
 
             login: (user, token) => {
+                resetTokenExpiryAlert();
                 set({
                     isLoggedIn: true,
                     user,
                     accessToken: token,
+                });
+            },
+
+            setUser: (user) => {
+                set({
+                    user,
+                    isLoggedIn: !!user,
                 });
             },
 

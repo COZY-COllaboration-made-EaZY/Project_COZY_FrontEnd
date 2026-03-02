@@ -7,11 +7,11 @@ interface Props {
 
 export const DashboardPanel = ({ title, children }: Props) => {
     return (
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h3 className="mb-4 text-sm font-semibold text-gray-700">
+        <div className="theme-card rounded-3xl p-6">
+            <h3 className="mb-4 text-sm font-semibold text-white/90">
                 {title}
             </h3>
-            <div className="flex h-72 items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50">
+            <div className="flex h-72 items-center justify-center rounded-2xl border border-dashed border-white/30 bg-white/5">
                 {children}
             </div>
         </div>

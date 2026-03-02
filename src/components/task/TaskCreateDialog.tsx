@@ -1,18 +1,20 @@
-// components/task/TaskCreateDialog.tsx
 'use client';
+// components/task/TaskCreateDialog.tsx
 
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 import { useUserStore } from "@/store/userStore";
 import LoginRequiredDialog from "@/components/public/LoginRequireDialog";
 import {createTaskRequest} from "@/api/requests/task";
+import { useTranslation } from "react-i18next";
 
 interface Props {
     projectId: string; // UUID
     onClose: () => void;
-    onSuccess: () => void;
+    onSuccess: (created?: { taskId?: number; title?: string; nickName?: string; status?: string; createdAt?: string }) => void;
 }
 
 export default function TaskCreateDialog({ projectId, onClose, onSuccess }: Props) {
+    const { t } = useTranslation();
     const { user } = useUserStore();
     const [title, setTitle] = useState('');
     const [date] = useState(new Date().toISOString().split('T')[0]);
@@ -47,75 +49,79 @@ export default function TaskCreateDialog({ projectId, onClose, onSuccess }: Prop
                 taskText,
             };
             // console.log(createTaskDTO);
-            await createTaskRequest(createTaskDTO);
-            onSuccess();
+            const created = await createTaskRequest(createTaskDTO);
+            onSuccess(created);
             handleClose();
-        } catch (error: any) {
-            if (error?.response?.status === 401) {
+        } catch (error: unknown) {
+            if (typeof error === 'object' && error !== null && 'response' in error && (error as { response?: { status?: number } }).response?.status === 401) {
                 setShowLoginDialog(true);
             } else {
                 console.error("Error:", error);
-                alert(error?.response?.data?.message || "An error occurred.");
+                const message =
+                    typeof error === 'object' && error !== null && 'response' in error
+                        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+                        : undefined;
+                alert(message || t('common.errorOccurred'));
             }
         }
     };
 
     return (
         <>
-            <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/40 transition-opacity duration-300 ${isClosing ? 'opacity-0' : 'opacity-100'}`}>
-                <div className={`bg-white w-[600px] px-8 py-6 shadow-xl rounded-md transform transition-all duration-300 ${isClosing ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
-                    <h2 className="text-lg font-semibold mb-1">Create Task</h2>
-                    <hr className="mb-6 border-t" />
+            <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md transition-opacity duration-300 ${isClosing ? 'opacity-0' : 'opacity-100'}`}>
+                <div className={`theme-card w-full max-w-2xl rounded-3xl px-4 py-5 text-white transform transition-all duration-300 sm:px-6 md:px-8 ${isClosing ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+                    <h2 className="text-lg font-semibold mb-1">{t('task.createTitle')}</h2>
+                    <hr className="mb-6 border-t border-white/20" />
                     <div className="space-y-5">
-                        <div className="flex items-center gap-4">
-                            <label className="w-20 text-sm font-semibold">Name</label>
-                            <div className="bg-gray-100 text-sm px-4 py-2 rounded w-80 border border-gray-300">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+                            <label className="w-full text-sm font-semibold text-white/80 sm:w-20">{t('task.fields.name')}</label>
+                            <div className="w-full rounded-md border border-white/30 bg-white/80 px-4 py-2 text-sm text-slate-900 sm:w-80">
                                 {user?.nickname ?? ''}
                             </div>
                         </div>
-                        <div className="flex items-center gap-4">
-                            <label className="w-20 text-sm font-semibold">Title</label>
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+                            <label className="w-full text-sm font-semibold text-white/80 sm:w-20">{t('task.fields.title')}</label>
                             <input
                                 type="text"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
-                                className="w-80 px-3 py-2 rounded text-sm border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                className="w-full rounded-md border border-white/30 bg-white/90 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-white/40 sm:w-80"
                             />
                         </div>
-                        <div className="flex items-center gap-4">
-                            <label className="w-20 text-sm font-semibold">Date</label>
-                            <div className="bg-gray-100 text-sm px-4 py-2 rounded w-80 border border-gray-300">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+                            <label className="w-full text-sm font-semibold text-white/80 sm:w-20">{t('task.fields.date')}</label>
+                            <div className="w-full rounded-md border border-white/30 bg-white/80 px-4 py-2 text-sm text-slate-900 sm:w-80">
                                 {date}
                             </div>
                         </div>
-                        <div className="flex items-center gap-4">
-                            <label className="w-20 text-sm font-semibold">Status</label>
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+                            <label className="w-full text-sm font-semibold text-white/80 sm:w-20">{t('task.fields.status')}</label>
                             <select
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value)}
-                                className="w-80 px-3 py-2 rounded text-sm border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                className="w-full rounded-md border border-white/30 bg-white/90 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-white/40 sm:w-80"
                             >
-                                <option value="Not Started">Not Started</option>
-                                <option value="In Progress">In Progress</option>
-                                <option value="Under Review">Under Review</option>
-                                <option value="Pending Approval">Pending Approval</option>
-                                <option value="Merge Requested">Merge Requested</option>
-                                <option value="Merge Completed">Merge Completed</option>
+                                <option value="Not Started">{t('task.status.todo')}</option>
+                                <option value="In Progress">{t('task.status.inProgress')}</option>
+                                <option value="Under Review">{t('task.status.inReview')}</option>
+                                <option value="Pending Approval">{t('task.status.inApproval')}</option>
+                                <option value="Merge Requested">{t('task.status.mergeRequest')}</option>
+                                <option value="Merge Completed">{t('task.status.mergeDone')}</option>
                             </select>
                         </div>
                         <div>
-                            <label className="block mb-1 text-sm font-semibold">Content</label>
+                            <label className="block mb-1 text-sm font-semibold text-white/80">{t('task.fields.content')}</label>
                             <textarea
                                 rows={10}
                                 value={taskText}
                                 onChange={(e) => setTaskText(e.target.value)}
-                                className="w-full resize-none p-3 rounded text-sm border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                className="w-full resize-none rounded-md border border-white/30 bg-white/90 p-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-white/40"
                             />
                         </div>
                     </div>
-                    <div className="flex justify-end gap-3 mt-8">
-                        <button onClick={handleSubmit} className="bg-blue-500 text-white text-sm px-5 py-2 rounded hover:bg-blue-600">Submit</button>
-                        <button onClick={handleClose} className="bg-gray-300 text-sm px-5 py-2 rounded hover:bg-gray-400">Cancel</button>
+                    <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                        <button onClick={handleSubmit} className="theme-btn-primary text-sm px-5 py-2 rounded hover:brightness-110 w-full sm:w-auto">{t('common.submit')}</button>
+                        <button onClick={handleClose} className="theme-btn-secondary text-sm px-5 py-2 rounded hover:brightness-110 w-full sm:w-auto">{t('common.cancel')}</button>
                     </div>
                 </div>
             </div>

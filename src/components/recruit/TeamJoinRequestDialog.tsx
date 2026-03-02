@@ -6,6 +6,7 @@ import { ERROR_MESSAGE_MAP } from '@/constants/errorMessage';
 import { isErrorCode } from '@/utils/isErrorCode';
 import { ApiErrorResponse } from '@/types/ErrorResponse';
 import {createJoinRequest} from "@/api/requests/joinRequest";
+import { useTranslation } from "react-i18next";
 
 interface Props {
     teamId: string;
@@ -20,12 +21,13 @@ export default function TeamJoinRequestDialog({
                                                   onClose,
                                                   onSuccess,
                                               }: Props) {
+    const { t } = useTranslation();
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async () => {
         if (!message.trim()) {
-            alert('신청 메시지를 입력해주세요.');
+            alert(t('recruit.joinMessageRequired'));
             return;
         }
 
@@ -41,7 +43,7 @@ export default function TeamJoinRequestDialog({
                 const errorCode = e.response?.data?.error?.errorCode;
 
                 if (errorCode && isErrorCode(errorCode)) {
-                    alert(ERROR_MESSAGE_MAP[errorCode]);
+                    alert(t(ERROR_MESSAGE_MAP[errorCode]));
 
                     // 이미 신청 / 이미 소속 → 다이얼로그 닫기
                     if (errorCode === 'JOIN-002' || errorCode === 'JOIN-003') {
@@ -51,44 +53,44 @@ export default function TeamJoinRequestDialog({
                 }
             }
 
-            alert('팀 가입 신청에 실패했습니다.');
+            alert(t('recruit.joinRequestFailed'));
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-            <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-                <h2 className="mb-4 text-lg font-bold">팀 가입 신청</h2>
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/50 backdrop-blur-md">
+            <div className="theme-card w-full max-w-md rounded-3xl p-4 text-white sm:p-6">
+                <h2 className="mb-4 text-lg font-bold">{t('recruit.joinRequestTitle')}</h2>
 
-                <p className="mb-4 text-sm text-gray-500">
-                    신청 팀 :{' '}
-                    <span className="font-medium text-gray-800">{teamName}</span>
+                <p className="mb-4 text-sm text-white/70">
+                    {t('recruit.joinRequestTeamLabel')}: {' '}
+                    <span className="font-medium text-white">{teamName}</span>
                 </p>
 
                 <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    placeholder="자신을 소개하세요"
-                    className="w-full h-32 resize-none rounded-xl border p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    placeholder={t('recruit.joinMessagePlaceholder')}
+                    className="h-32 w-full resize-none rounded-xl border border-white/30 bg-white/90 p-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-white/40"
                 />
 
-                <div className="mt-6 flex justify-end gap-2">
+                <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                     <button
                         onClick={onClose}
                         disabled={loading}
-                        className="rounded-lg border px-4 py-2"
+                        className="theme-btn-secondary rounded-lg px-4 py-2 transition hover:brightness-110 w-full sm:w-auto"
                     >
-                        취소
+                        {t('common.cancel')}
                     </button>
 
                     <button
                         onClick={handleSubmit}
                         disabled={loading}
-                        className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
+                        className="theme-btn-primary rounded-lg px-4 py-2 transition hover:brightness-110 disabled:opacity-50 w-full sm:w-auto"
                     >
-                        {loading ? '전송 중...' : '신청'}
+                        {loading ? t('recruit.joinSending') : t('recruit.joinSubmit')}
                     </button>
                 </div>
             </div>

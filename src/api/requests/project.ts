@@ -1,4 +1,5 @@
 ﻿import apiClient from "@/api/Axios";
+import i18n from "@/i18n";
 
 export type ProjectDetail = {
     projectId: string;
@@ -8,6 +9,7 @@ export type ProjectDetail = {
     leaderName: string;
     gitHubUrl: string | null;
     teamId: string;
+    teamName?: string;
     leaderId: string;
     subLeaderId: string | null;
 };
@@ -46,6 +48,7 @@ export const getProjectDetailRequest = async (
         leaderName: raw.leaderName,
         gitHubUrl: raw.gitHubUrl,
         teamId: raw.teamId,
+        teamName: raw.teamName,
         leaderId: raw.leaderId,
         subLeaderId: raw.subLeaderId,
     };
@@ -58,8 +61,9 @@ export const checkProjectNameRequest = async (projectName: string): Promise<bool
             params: { projectName },
         });
         return response.data.available;
-    } catch (error: any) {
-        alert("프로젝트 이름 중복 확인 실패");
+    } catch (error: unknown) {
+        console.error(error);
+        alert(i18n.t("createProject.errorNameCheckFailed"));
         return false;
     }
 };
@@ -89,14 +93,19 @@ export const getMyTeamProjectDetailInfoRequest = async (projectId : string) => {
         });
         console.log("프로젝트 이름으로 검색한 결과 "+JSON.stringify(res.data));
         return res.data;
-    }catch (error: any) {
+    }catch (error: unknown) {
         console.log("검색실패"+error);
     }
 
 }
 
-export const deleteProjectRequest = async (projectId: string) => {
-    await apiClient.delete(`/api/project/${projectId}`);
+export type DeleteProjectRequest = {
+    teamName: string;
+    password: string;
+};
+
+export const deleteProjectRequest = async (projectId: string, payload: DeleteProjectRequest) => {
+    await apiClient.delete(`/api/project/${projectId}`, { data: payload });
 };
 
 export const updateProjectRequest = async (

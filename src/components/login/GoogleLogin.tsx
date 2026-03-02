@@ -4,6 +4,7 @@ import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 import { Button } from '../ui/button';
 import GoogleIcon from '@/assets/icons/google-icon-logo.svg';
 import Image from 'next/image';
+import { useTranslation } from "react-i18next";
 
 import {
   AlertDialog,
@@ -24,6 +25,7 @@ type Props = {
 };
 
 const GoogleLoginComponent: React.FC<Props> = ({ enabled = false }) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   const login = useGoogleLogin({
@@ -37,20 +39,20 @@ const GoogleLoginComponent: React.FC<Props> = ({ enabled = false }) => {
         <>
           <Button onClick={() => setOpen(true)} className="w-full" variant="outline">
             <Image src={GoogleIcon} alt="구글 아이콘" width={24} height={24} />
-            구글 로그인 (미구현)
+            {t('auth.googleLoginDisabled')}
           </Button>
 
           <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>아직 준비 중입니다</AlertDialogTitle>
+                <AlertDialogTitle>{t('auth.googleLoginComingTitle')}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  구글 로그인 기능은 현재 개발 중입니다. 이메일/비밀번호 로그인을 먼저 이용해 주세요.
+                  {t('auth.googleLoginComingDesc')}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>닫기</AlertDialogCancel>
-                <AlertDialogAction onClick={() => setOpen(false)}>확인</AlertDialogAction>
+                <AlertDialogCancel>{t('common.close')}</AlertDialogCancel>
+                <AlertDialogAction onClick={() => setOpen(false)}>{t('common.ok')}</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
@@ -63,7 +65,7 @@ const GoogleLoginComponent: React.FC<Props> = ({ enabled = false }) => {
       <GoogleOAuthProvider clientId={clientId}>
         <Button onClick={() => login()} className="w-full" variant="outline">
           <Image src={GoogleIcon} alt="구글 아이콘" width={24} height={24} />
-          구글 로그인
+          {t('auth.googleLogin')}
         </Button>
       </GoogleOAuthProvider>
   );

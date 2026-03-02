@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import RecruitCreateDialog from '@/components/recruit/RecruitCreateDialog';
@@ -12,6 +12,7 @@ import {
 import { useUserStore } from '@/store/userStore';
 import { useTeamStore } from '@/store/teamStore';
 import {getMyTeamInfoRequest} from "@/api/requests/team";
+import { useTranslation } from "react-i18next";
 
 type RecruitListItem = {
     id: number;
@@ -21,6 +22,7 @@ type RecruitListItem = {
 };
 
 export default function RecruitList() {
+    const { t } = useTranslation();
     const [recruits, setRecruits] = useState<RecruitListItem[]>([]);
     const [search, setSearch] = useState('');
     const [showCreate, setShowCreate] = useState(false);
@@ -30,27 +32,28 @@ export default function RecruitList() {
     const { setTeams } = useTeamStore();
 
     /** 모집글 목록 로딩 */
-    const loadRecruits = async () => {
+    const loadRecruits = useCallback(async () => {
         const data = await getRecruitListRequest();
         setRecruits(
-            (data ?? []).map((d: any) => ({
+            (data ?? []).map((d: { id: number; title: string; nickName: string; createdAt: string }) => ({
                 id: d.id,
                 title: d.title,
                 nickName: d.nickName,
                 createdAt: d.createdAt,
             }))
         );
-    };
+    }, []);
 
-    const loadTeams = async () => {
+    const loadTeams = useCallback(async () => {
         try {
             const teams = await getMyTeamInfoRequest();
             setTeams(teams);
         } catch (e) {
             console.error('팀 목록 로딩 실패', e);
+            alert(t('team.listLoadFailed'));
             setTeams([]);
         }
-    };
+    }, [setTeams, t]);
 
     useEffect(() => {
         loadRecruits();
@@ -58,7 +61,7 @@ export default function RecruitList() {
         if (isLoggedIn) {
             loadTeams();
         }
-    }, [isLoggedIn]);
+    }, [isLoggedIn, loadRecruits, loadTeams]);
 
     const openDetail = async (id: number) => {
         const detail = await getRecruitDetailRequest(id);
@@ -74,74 +77,78 @@ export default function RecruitList() {
     );
 
     return (
-        <div className="max-w-5xl mx-auto mt-10 px-4 relative">
+        <div className="relative">
             {/* Header */}
-            <div className="flex justify-between items-center mb-4">
-                <div className="font-semibold">
-                    계획&nbsp;&nbsp;{recruits.length}
+            <div className="theme-card mb-6 flex flex-col gap-4 rounded-2xl px-4 py-4 transition hover:-translate-y-0.5 hover:shadow-[0_18px_44px_rgba(15,23,42,0.45)] sm:px-6 md:flex-row md:items-center md:justify-between">
+                <div className="text-lg font-semibold text-white">
+                    {t('recruit.listTitle')}&nbsp;&nbsp;{recruits.length}
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center md:w-auto">
                     <Input
-                        placeholder="Search"
+                        placeholder={t('recruit.searchPlaceholder')}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-60 h-10"
+                        className="h-10 w-full border-white/30 bg-white/90 text-slate-900 placeholder:text-slate-500 focus-visible:ring-white/40 sm:w-60"
                     />
 
                     <Button
-                        className="h-10 w-20 !bg-slate-200 !text-slate-700 hover:!bg-slate-300"
+                        className="theme-btn-secondary h-10 w-full hover:brightness-110 sm:w-20"
                     >
-                        Search
+                        {t('recruit.searchButton')}
                     </Button>
 
                     <Button
-                        className="h-10 w-24 !bg-blue-200 !text-blue-900 hover:!bg-blue-300 disabled:opacity-50"
+                        className="theme-btn-primary h-10 w-full hover:brightness-110 disabled:opacity-50 sm:w-28"
                         disabled={!isLoggedIn}
                         onClick={() => setShowCreate(true)}
                     >
-                        Create Recruit
+                        {t('recruit.createTitle')}
                     </Button>
                 </div>
             </div>
 
             {/* Table */}
-            <table className="w-full border-t border-b text-center text-sm">
-                <thead className="bg-white border-b">
-                <tr className="text-gray-600">
-                    <th className="py-2">No</th>
-                    <th className="py-2 text-left pl-6">Title</th>
-                    <th className="py-2">UserName</th>
-                    <th className="py-2">CreateDay</th>
-                </tr>
-                </thead>
-                <tbody>
-                {filtered.length === 0 ? (
+            <div className="theme-card overflow-hidden rounded-3xl transition hover:shadow-[0_24px_60px_rgba(15,23,42,0.5)]">
+                <div className="overflow-x-auto">
+                    <table className="min-w-[640px] w-full text-center text-sm text-white/80">
+                    <thead className="border-b border-white/20 bg-white/10 text-white/70">
                     <tr>
-                        <td colSpan={4} className="py-20 text-gray-500">
-                            현재 모집내용이 없습니다.
-                        </td>
+                        <th className="py-3">{t('recruit.columns.no')}</th>
+                        <th className="py-3 text-left pl-6">{t('recruit.columns.title')}</th>
+                        <th className="py-3">{t('recruit.columns.user')}</th>
+                        <th className="py-3">{t('recruit.columns.date')}</th>
                     </tr>
-                ) : (
-                    filtered.map((row, index) => (
-                        <tr
-                            key={row.id}
-                            className="hover:bg-gray-50 border-b cursor-pointer"
-                            onClick={() => openDetail(row.id)}
-                        >
-                            <td className="py-2">{index + 1}</td>
-                            <td className="py-2 text-left pl-6">
-                                {row.title}
-                            </td>
-                            <td className="py-2">{row.nickName}</td>
-                            <td className="py-2">
-                                {formatDate(row.createdAt)}
+                    </thead>
+                    <tbody>
+                    {filtered.length === 0 ? (
+                        <tr>
+                            <td colSpan={4} className="py-20 text-white/60">
+                                {t('recruit.empty')}
                             </td>
                         </tr>
-                    ))
-                )}
-                </tbody>
-            </table>
+                    ) : (
+                        filtered.map((row, index) => (
+                            <tr
+                                key={row.id}
+                                className="cursor-pointer border-b border-white/10 transition hover:bg-white/10"
+                                onClick={() => openDetail(row.id)}
+                            >
+                                <td className="py-3">{index + 1}</td>
+                                <td className="py-3 text-left pl-6 text-white">
+                                    {row.title}
+                                </td>
+                                <td className="py-3">{row.nickName}</td>
+                                <td className="py-3">
+                                    {formatDate(row.createdAt)}
+                                </td>
+                            </tr>
+                        ))
+                    )}
+                    </tbody>
+                    </table>
+                </div>
+            </div>
 
             {/* Create Dialog */}
             {showCreate && (

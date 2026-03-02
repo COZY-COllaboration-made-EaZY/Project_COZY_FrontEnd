@@ -10,8 +10,10 @@ interface Props {
 
 export function DateTimeCard({ locale, am, pm }: Props) {
     const [now, setNow] = useState(new Date());
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        setMounted(true);
         const timer = setInterval(() => setNow(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
@@ -34,12 +36,12 @@ export function DateTimeCard({ locale, am, pm }: Props) {
     });
 
     return (
-        <div className="rounded-xl border border-gray-200 bg-white p-5 text-center shadow-sm">
-            <p className="text-sm font-medium text-gray-600">
-                {dateText}
+        <div className="theme-card rounded-3xl p-5 text-center">
+            <p className="text-sm font-medium text-white/80" suppressHydrationWarning>
+                {mounted ? dateText : ""}
             </p>
-            <p className="mt-2 text-xl font-bold tracking-widest text-gray-900">
-                {isAM ? am : pm} {timeText}
+            <p className="mt-2 text-xl font-bold tracking-widest text-white" suppressHydrationWarning>
+                {mounted ? `${isAM ? am : pm} ${timeText}` : ""}
             </p>
         </div>
     );

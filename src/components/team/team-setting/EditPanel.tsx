@@ -1,7 +1,10 @@
+'use client';
+
 import { useEffect, useState } from "react";
 import SectionCard from "./ui/SectionCard";
 import Field from "./ui/Field";
 import {TeamForm} from "@/components/team/team-setting/TeamSettingClient";
+import { useTranslation } from "react-i18next";
 
 export default function EditPanel({
                                       initial,
@@ -14,6 +17,7 @@ export default function EditPanel({
     onSubmit: (next: TeamForm) => void;
     onDelete: () => void;
 }) {
+    const { t } = useTranslation();
     const [form, setForm] = useState<TeamForm>(initial);
 
     useEffect(() => {
@@ -24,22 +28,22 @@ export default function EditPanel({
         <section className="space-y-6">
             <div className="grid gap-5 md:grid-cols-2">
                 <Field
-                    label="Team Name:"
+                    label={`${t('team.settingsTeamName')}:`}
                     value={form.teamName}
                     onChange={(v) =>
                         setForm((s) => ({ ...s, teamName: v }))
                     }
                 />
-                <Field label="Owner:" value={form.owner} disabled />
+                <Field label={`${t('team.settingsOwner')}:`} value={form.owner} disabled />
             </div>
 
             {/* 설명 */}
             <SectionCard>
-                <label className="mb-2 block text-lg font-bold">
-                    Description
+                <label className="mb-2 block text-lg font-bold text-white">
+                    {t('team.settingsDescription')}
                 </label>
                 <textarea
-                    className="w-full rounded-xl border border-black/10 bg-white p-3 outline-none focus:border-black/30"
+                    className="w-full rounded-xl border border-white/30 bg-white/90 p-3 text-slate-900 outline-none focus:border-white focus:ring-2 focus:ring-white/40"
                     rows={6}
                     value={form.description}
                     onChange={(e) =>
@@ -52,28 +56,24 @@ export default function EditPanel({
             </SectionCard>
 
             {/* 액션 */}
-            <div className="mt-6 flex items-center justify-end gap-3">
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
                 <button
                     onClick={onCancel}
-                    className="rounded-xl border border-black/10 bg-gray-100 px-4 py-2 hover:bg-gray-200"
+                    className="theme-btn-secondary rounded-xl px-4 py-2 transition hover:brightness-110 w-full sm:w-auto"
                 >
-                    Cancel
+                    {t('common.cancel')}
                 </button>
                 <button
                     onClick={() => onSubmit(form)}
-                    className="rounded-xl bg-blue-600 px-5 py-2 text-white hover:brightness-110"
+                    className="theme-btn-primary rounded-xl px-5 py-2 text-white transition hover:brightness-110 w-full sm:w-auto"
                 >
-                    Update Team
+                    {t('team.settingsUpdate')}
                 </button>
                 <button
-                    onClick={() => {
-                        if (confirm("정말 이 팀을 삭제하시겠습니까?")) {
-                            onDelete();
-                        }
-                    }}
-                    className="rounded-xl bg-red-600 px-5 py-2 text-white hover:brightness-110"
+                    onClick={onDelete}
+                    className="theme-btn-secondary rounded-xl px-5 py-2 text-white transition hover:brightness-110 w-full sm:w-auto"
                 >
-                    Delete Team
+                    {t('team.settingsDelete')}
                 </button>
             </div>
         </section>

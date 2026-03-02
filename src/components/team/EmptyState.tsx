@@ -4,7 +4,7 @@ interface Props {
 
 export const EmptyState = ({ text }: Props) => {
     return (
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-white/60">
             {text}
         </p>
     );

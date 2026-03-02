@@ -19,7 +19,7 @@ export async function createHelpRequest(
 
 export async function updateHelpRequest(
     id: number,
-    updateHelpContent: { title: string; content: string; status?: string }
+    updateHelpContent: { title?: string; content?: string; status?: string; answer?: string }
 ) {
     const res = await apiClient.put(`/api/help/${id}`, updateHelpContent);
     return res.data;

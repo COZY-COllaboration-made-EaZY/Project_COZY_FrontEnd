@@ -1,12 +1,38 @@
+'use client';
+
+import { useTranslation } from "react-i18next";
+import { useState } from "react";
+
 type Props = {
     onBack: () => void;
+    i18nPrefix?: string;
+    mode?: "create" | "edit";
+    initialTitle?: string;
+    initialContent?: string;
+    onSubmit: (title: string, content: string) => Promise<void> | void;
 };
 
-export default function PostForm({ onBack }: Props) {
+export default function PostForm({
+    onBack,
+    i18nPrefix,
+    mode = "create",
+    initialTitle = "",
+    initialContent = "",
+    onSubmit,
+}: Props) {
+    const { t } = useTranslation();
+    const prefix = i18nPrefix ?? "board";
+    const label = (key: string) => t(`${prefix}.${key}`);
+    const [title, setTitle] = useState(initialTitle);
+    const [content, setContent] = useState(initialContent);
+    const [saving, setSaving] = useState(false);
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("게시글 등록");
-        onBack();
+        if (saving) return;
+        setSaving(true);
+        Promise.resolve(onSubmit(title, content))
+            .then(() => onBack())
+            .finally(() => setSaving(false));
     };
 
     const handleCancel = () => {
@@ -18,36 +44,43 @@ export default function PostForm({ onBack }: Props) {
         <section className="mx-auto w-full max-w-3xl px-4 py-8">
             <button
                 onClick={onBack}
-                className="mb-4 inline-block text-sm text-gray-600 hover:underline"
+                className="mb-4 inline-block text-sm text-white/70 hover:underline"
             >
-                ← 목록으로
+                ← {label("backToList")}
             </button>
-            <h2 className="mb-4 text-lg font-semibold">새 글 쓰기</h2>
+            <h2 className="mb-4 text-lg font-semibold text-white">
+                {mode === "edit" ? label("editTitle") : label("newPost")}
+            </h2>
 
             <form onSubmit={handleSubmit} className="space-y-3">
                 <input
                     type="text"
-                    placeholder="제목"
-                    className="w-full rounded border p-2 text-sm"
+                    placeholder={label("titlePlaceholder")}
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full rounded border border-white/30 bg-white/90 p-2 text-sm text-slate-900"
                 />
                 <textarea
-                    placeholder="내용"
-                    className="h-60 w-full resize-y rounded border p-2 text-sm"
+                    placeholder={label("contentPlaceholder")}
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    className="h-60 w-full resize-y rounded border border-white/30 bg-white/90 p-2 text-sm text-slate-900"
                 ></textarea>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col-reverse gap-2 sm:flex-row">
                     <button
                         type="submit"
-                        className="rounded bg-gray-900 px-3 py-2 text-sm text-white"
+                        className="theme-btn-primary rounded px-3 py-2 text-sm transition hover:brightness-110 w-full sm:w-auto"
+                        disabled={saving}
                     >
-                        등록
+                        {saving ? t("common.loading") : t('common.submit')}
                     </button>
                     <button
                         type="button"
                         onClick={handleCancel}
-                        className="rounded border px-3 py-2 text-sm"
+                        className="theme-btn-secondary rounded border px-3 py-2 text-sm transition hover:brightness-110 w-full sm:w-auto"
                     >
-                        취소
+                        {t('common.cancel')}
                     </button>
                 </div>
             </form>

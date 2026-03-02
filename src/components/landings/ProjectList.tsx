@@ -13,8 +13,10 @@ import {
 import { useRouter } from 'next/navigation';
 import { Info, FolderKanban } from 'lucide-react';
 import { useTeamStore } from '@/store/teamStore';
+import { useTranslation } from "react-i18next";
 
 export const ProjectList = () => {
+    const { t } = useTranslation();
     const { isLoggedIn } = useUserStore();
     const { projects, setProjects, setCurrentProjectId } = useProjectStore();
     const currentTeamId = useTeamStore((s) => s.currentTeamId);
@@ -39,7 +41,7 @@ export const ProjectList = () => {
                 data?.data?.projects ??
                 [];
 
-            const normalized = list.map((p: any) => ({
+            const normalized = list.map((p: { projectId?: string | number; id?: string | number; projectName?: string; name?: string; description?: string }) => ({
                 id: String(p.projectId ?? p.id),
                 name: String(p.projectName ?? p.name),
                 description: p.description ?? '',
@@ -58,7 +60,7 @@ export const ProjectList = () => {
         try {
             const data = await getMyTeamProjectDetailInfoRequest(projectId);
             if (!data) {
-                alert('Project not found');
+                alert(t('projectList.notFound'));
                 return;
             }
 
@@ -77,75 +79,110 @@ export const ProjectList = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="mx-auto w-full max-w-3xl px-4 mb-10"
+            className="mx-auto w-full max-w-4xl px-4 mb-12"
         >
+            <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                <div>
+                    <p className="text-xs uppercase tracking-[0.25em] text-white/60">
+                        {t('projectList.participating')}
+                    </p>
+                    <h2 className="mt-2 text-2xl md:text-3xl font-semibold text-white">
+                        {t('projectList.title')}
+                    </h2>
+                    <p className="mt-2 text-sm text-white/70">
+                        {t('projectList.subtitle')}
+                    </p>
+                </div>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <span className="text-sm text-white/70">
+                        {t('projectList.countLabel', { count: projects.length })}
+                    </span>
+                    {projects.length > 0 && (
+                        <Button asChild className="theme-btn-primary rounded-lg px-4 py-2 text-sm w-full sm:w-auto">
+                            <Link
+                                href={
+                                    currentTeamId
+                                        ? `/createproject?teamId=${encodeURIComponent(currentTeamId)}`
+                                        : "/createproject"
+                                }
+                            >
+                                {t('createProject.newProject')}
+                            </Link>
+                        </Button>
+                    )}
+                </div>
+            </div>
+
             {projects.length === 0 ? (
-                <div className="rounded-2xl border border-dashed bg-white/70 backdrop-blur p-8 text-center shadow-sm">
-                    <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 text-white">
-                        <FolderKanban className="h-6 w-6" />
+                <div className="theme-card rounded-2xl border-dashed p-10 text-center">
+                    <div className="theme-btn-primary mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-[0_12px_28px_rgba(0,0,0,0.3)]">
+                        <FolderKanban className="h-7 w-7" />
                     </div>
-                    <p className="text-lg font-semibold text-slate-800">
-                        You are not in any projects yet
+                    <p className="text-xl font-semibold text-white">
+                        {t('projectList.emptyTitle')}
                     </p>
-                    <p className="mt-1 text-sm text-slate-500">
-                        Create a project and invite teammates.
+                    <p className="mt-2 text-sm text-white/70">
+                        {t('projectList.emptyDesc')}
                     </p>
-                    <Button asChild className="mt-5 rounded-xl">
-                        <Link href="/createproject">Create New Project</Link>
+                    <Button asChild className="theme-btn-primary mt-6 rounded-xl px-6">
+                        <Link
+                            href={
+                                currentTeamId
+                                    ? `/createproject?teamId=${encodeURIComponent(currentTeamId)}`
+                                    : "/createproject"
+                            }
+                        >
+                            {t('createProject.newProject')}
+                        </Link>
                     </Button>
                 </div>
             ) : (
-                <div className="space-y-5">
-                    <div className="text-center">
-                        <p className="text-sm tracking-wide text-slate-500">Participating</p>
-                        <h2 className="text-xl font-semibold text-slate-900">
-                            Projects You Are Involved In
-                        </h2>
-                    </div>
-
-                    <ul className="space-y-4">
+                <div className="space-y-3">
+                    <ul className="space-y-3">
                         {projects.map((project) => (
                             <motion.li
                                 key={project.id}
                                 whileHover={{ y: -2 }}
                                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                                className="group relative flex items-center justify-between overflow-hidden rounded-2xl border bg-white/80 backdrop-blur shadow-sm transition hover:shadow-lg"
+                                className="theme-card group relative overflow-hidden rounded-xl transition hover:shadow-[0_18px_44px_rgba(15,23,42,0.4)]"
                             >
-                                <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-gradient-to-r from-blue-500 via-indigo-500 to-fuchsia-500" />
+                                <div className="theme-btn-primary pointer-events-none absolute inset-x-0 top-0 h-0.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-                                <div className="p-5 text-left">
-                                    <div className="flex items-center gap-2">
-                                        <FolderKanban className="h-4 w-4 text-slate-500" />
-                                        <p className="truncate text-base font-semibold text-slate-900">
-                                            ProjectName : {project.name}
-                                        </p>
+                                <div className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
+                                    <div className="text-left">
+                                        <div className="flex items-center gap-2">
+                                            <FolderKanban className="h-4 w-4 text-white/60" />
+                                            <p className="truncate text-base font-semibold text-white">
+                                                {t('projectList.projectName')}: {project.name}
+                                            </p>
+                                        </div>
+
+                                        <div className="mt-2 flex items-start gap-2 text-sm text-white/70">
+                                            <Info className="mt-0.5 h-4 w-4 shrink-0 text-white/60" />
+                                            <p className="line-clamp-2">
+                                                {project.description
+                                                    ? `${t('projectList.description')}: ${project.description}`
+                                                    : t('projectList.noDescription')}
+                                            </p>
+                                        </div>
                                     </div>
 
-                                    <div className="mt-2 flex items-start gap-2 text-sm text-slate-500">
-                                        <Info className="mt-0.5 h-4 w-4 shrink-0" />
-                                        <p className="line-clamp-2">
-                                            {project.description
-                                                ? `description : ${project.description}`
-                                                : 'No description provided.'}
-                                        </p>
+                                    <div className="flex items-center gap-3">
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.97 }}
+                                            onClick={() =>
+                                                handleJoin(String(project.id), String(project.name))
+                                            }
+                                            className="theme-btn-primary rounded-lg px-5 py-2 text-sm font-medium transition
+                                                       hover:brightness-110
+                                                       focus:outline-none
+                                                       focus-visible:ring-2 focus-visible:ring-white/50
+                                                       w-full sm:w-auto"
+                                        >
+                                            {t('projectList.join')}
+                                        </motion.button>
                                     </div>
-                                </div>
-
-                                <div className="pr-5">
-                                    <motion.button
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.97 }}
-                                        onClick={() =>
-                                            handleJoin(String(project.id), String(project.name))
-                                        }
-                                        className="rounded-xl px-6 py-2 text-sm font-medium text-white shadow-sm transition
-                                                   bg-gradient-to-r from-blue-600 to-indigo-600
-                                                   hover:brightness-110
-                                                   focus:outline-none
-                                                   focus-visible:ring-2 focus-visible:ring-blue-500"
-                                    >
-                                        Join
-                                    </motion.button>
                                 </div>
                             </motion.li>
                         ))}

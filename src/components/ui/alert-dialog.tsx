@@ -4,18 +4,16 @@ import * as React from 'react';
 
 export function AlertDialog({
                                 open,
-                                onOpenChange,
                                 children,
                             }: {
     open: boolean;
-    onOpenChange: (v: boolean) => void;
     children: React.ReactNode;
 }) {
     if (!open) return null;
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-            <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md z-50">
+            <div className="theme-card rounded-lg p-6 w-full max-w-sm text-white">
                 {children}
             </div>
         </div>
@@ -35,7 +33,7 @@ export function AlertDialogTitle({ children }: { children: React.ReactNode }) {
 }
 
 export function AlertDialogDescription({ children }: { children: React.ReactNode }) {
-    return <p className="text-sm text-gray-600">{children}</p>;
+    return <p className="text-sm text-white/70">{children}</p>;
 }
 
 export function AlertDialogFooter({ children }: { children: React.ReactNode }) {
@@ -52,7 +50,7 @@ export function AlertDialogCancel({
     return (
         <button
             onClick={onClick}
-            className="px-4 py-2 rounded border border-gray-300 hover:bg-gray-100"
+            className="theme-btn-secondary px-4 py-2 rounded transition hover:brightness-110"
         >
             {children}
         </button>
@@ -69,7 +67,7 @@ export function AlertDialogAction({
     return (
         <button
             onClick={onClick}
-            className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+            className="theme-btn-primary px-4 py-2 rounded transition hover:brightness-110"
         >
             {children}
         </button>

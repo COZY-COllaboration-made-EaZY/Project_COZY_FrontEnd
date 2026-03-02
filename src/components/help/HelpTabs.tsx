@@ -18,13 +18,15 @@ export default function HelpTabs({ value, onChange }: Props) {
     const { t } = useTranslation();
 
     return (
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
             {tabs.map((tab) => (
                 <button
                     key={tab.key}
                     onClick={() => onChange(tab.key)}
-                    className={`px-4 py-2 rounded-full border text-sm ${
-                        value === tab.key ? "bg-black text-white" : "bg-white"
+                    className={`rounded-full border px-4 py-2 text-sm transition ${
+                        value === tab.key
+                            ? "border-white/40 bg-white/20 text-white shadow-[0_10px_24px_rgba(15,23,42,0.35)]"
+                            : "border-white/20 bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
                     }`}
                 >
                     {t(tab.labelKey)}
