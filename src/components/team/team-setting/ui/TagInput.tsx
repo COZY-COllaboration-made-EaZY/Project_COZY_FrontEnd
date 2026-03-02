@@ -1,4 +1,7 @@
+'use client';
+
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function TagInput({
                                      label,
@@ -9,6 +12,7 @@ export default function TagInput({
     values: string[];
     onChange: (next: string[]) => void;
 }) {
+    const { t } = useTranslation();
     const [temp, setTemp] = useState("");
 
     const add = (t: string) => {
@@ -22,7 +26,7 @@ export default function TagInput({
 
     return (
         <div>
-            <label className="mb-2 block text-lg font-bold">{label}</label>
+            <label className="mb-2 block text-lg font-bold text-white">{label}</label>
             <div className="mb-2 flex gap-2">
                 <input
                     value={temp}
@@ -34,8 +38,8 @@ export default function TagInput({
                             setTemp("");
                         }
                     }}
-                    placeholder="Enter로 태그 추가"
-                    className="h-11 flex-1 rounded-xl border border-black/10 bg-white px-3 outline-none focus:border-black/30"
+                    placeholder={t('team.tagInputPlaceholder')}
+                    className="h-11 flex-1 rounded-xl border border-white/30 bg-white/90 px-3 text-slate-900 outline-none focus:border-white focus:ring-2 focus:ring-white/40"
                 />
                 <button
                     type="button"
@@ -43,25 +47,25 @@ export default function TagInput({
                         add(temp);
                         setTemp("");
                     }}
-                    className="rounded-xl border border-black/10 bg-gray-100 px-4 text-sm hover:bg-gray-200"
+                    className="theme-btn-secondary rounded-xl px-4 text-sm transition hover:brightness-110"
                 >
-                    Add
+                    {t('team.tagAdd')}
                 </button>
             </div>
 
             <div className="flex flex-wrap gap-2">
                 {values.length === 0 && (
-                    <span className="text-gray-500">등록된 관심사가 없습니다.</span>
+                    <span className="text-white/60">{t('team.tagEmpty')}</span>
                 )}
-                {values.map((t) => (
+                {values.map((tag) => (
                     <button
-                        key={t}
+                        key={tag}
                         type="button"
-                        onClick={() => remove(t)}
-                        className="rounded-xl border border-black/10 bg-gray-100 px-3 py-1 text-sm hover:bg-gray-200"
-                        title="클릭하여 제거"
+                        onClick={() => remove(tag)}
+                        className="theme-btn-secondary rounded-xl px-3 py-1 text-sm transition hover:brightness-110"
+                        title={t('team.tagRemoveTitle')}
                     >
-                        {t} ×
+                        {tag} ×
                     </button>
                 ))}
             </div>

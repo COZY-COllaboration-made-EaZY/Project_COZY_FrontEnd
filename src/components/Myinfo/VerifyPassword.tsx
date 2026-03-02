@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import {verifyPasswordRequest} from "@/api/requests/login";
 
@@ -13,15 +15,16 @@ export default function VerifyPassword({ onVerify }: { onVerify: () => void }) {
             } else {
                 setError('Incorrect password.');
             }
-        } catch (error) {
+        } catch (error: unknown) {
+            console.error(error);
             setError('Backend errer.');
         }
     };
 
     return (
-        <div className={"w-96 p-8 rounded-2xl bg-white border border-gray-100 shadow-[0_8px_28px_rgba(0,0,0,0.08)] text-center"}>
+        <div className="theme-card w-full max-w-md rounded-2xl p-6 text-center sm:p-8">
             <div className={"flex justify-center mb-4"}>
-                <div className={"w-12 h-12 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-600"}>
+                <div className={"w-12 h-12 flex items-center justify-center rounded-full bg-white/20 text-white"}>
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -40,12 +43,12 @@ export default function VerifyPassword({ onVerify }: { onVerify: () => void }) {
                 </div>
             </div>
 
-            <h2 className={"text-2xl font-semibold text-gray-800 mb-2"}>Security Check</h2>
-            <p className={"text-gray-500 text-sm mb-6"}>Enter your password to continue.</p>
+            <h2 className={"text-2xl font-semibold text-white mb-2"}>Security Check</h2>
+            <p className={"text-white/70 text-sm mb-6"}>Enter your password to continue.</p>
             <input
                 type={"password"}
                 placeholder={"Enter your password"}
-                className={"w-full p-3 rounded-lg border border-gray-300 text-gray-700 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all"}
+                className={"w-full p-3 rounded-lg border border-white/30 bg-white/90 text-slate-900 focus:ring-2 focus:ring-white/40 focus:border-white transition-all"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
             />
@@ -54,12 +57,12 @@ export default function VerifyPassword({ onVerify }: { onVerify: () => void }) {
             )}
 
             <button
-                className={"w-full py-3 mt-6 rounded-lg text-white font-medium bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-90 transition"}
+                className={"theme-btn-primary w-full py-3 mt-6 rounded-lg font-medium hover:brightness-110 transition"}
                 onClick={handleVerifyPassword}>
                 Verify
             </button>
 
-            <p className={"text-xs text-gray-400 mt-4"}>This step helps protect your account.</p>
+            <p className={"text-xs text-white/60 mt-4"}>This step helps protect your account.</p>
         </div>
     );
 }

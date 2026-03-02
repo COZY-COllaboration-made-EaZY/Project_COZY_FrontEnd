@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export default function GithubPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-gray-50" />}>
+        <Suspense fallback={<div className="theme-page min-h-screen" />}>
             <GithubClient />
         </Suspense>
     );

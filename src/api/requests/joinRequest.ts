@@ -22,9 +22,10 @@ export const approveJoinRequest = async (requestId: string) => {
     );
 };
 
-export const rejectJoinRequest = async (requestId: string) => {
+export const rejectJoinRequest = async (requestId: string, reason: string) => {
     return await apiClient.patch(
-        `/api/join-request/${requestId}/reject`
+        `/api/join-request/${requestId}/reject`,
+        { reason }
     );
 };
 

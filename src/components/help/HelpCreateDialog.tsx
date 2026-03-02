@@ -28,12 +28,12 @@ export default function HelpCreateDialog({
         await onSubmit(title, content);
         setTitle("");
         setContent("");
-        alert("등록을 완료했습니다.")
+        alert(t("help.submitSuccess"))
     };
 
     return (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 shadow-xl">
-            <div className="bg-white p-8 shadow-xl w-full max-w-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md shadow-xl">
+            <div className="theme-card w-full max-w-2xl rounded-3xl p-4 text-white sm:p-6 md:p-8">
 
                 {/* 제목 */}
                 <h2 className="text-xl font-bold mb-4">
@@ -41,7 +41,7 @@ export default function HelpCreateDialog({
                 </h2>
 
                 {/* 작성자 */}
-                <p className="text-sm mb-2 text-black font-bold">
+                <p className="text-sm mb-2 text-white/80 font-semibold">
                     {t("help.author")} : {username}
                 </p>
 
@@ -50,7 +50,7 @@ export default function HelpCreateDialog({
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder={t("help.placeholder_title")}
-                    className="w-full border mb-4 p-4 text-lg"
+                    className="w-full rounded-md border border-white/30 bg-white/90 mb-4 p-3 text-base text-slate-900 sm:p-4 sm:text-lg"
                 />
 
                 {/* 내용 입력 */}
@@ -59,21 +59,21 @@ export default function HelpCreateDialog({
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder={t("help.placeholder_content")}
-                    className="w-full border mb-4 p-4 text-lg resize-none"
+                    className="w-full rounded-md border border-white/30 bg-white/90 mb-4 p-3 text-base text-slate-900 resize-none sm:p-4 sm:text-lg"
                 />
 
                 {/* 버튼 */}
-                <div className="flex justify-end gap-4">
+                <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                     <button
                         onClick={handleSubmit}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 font-semibold text-lg shadow-md"
+                        className="theme-btn-primary rounded-md px-6 py-3 text-base font-semibold transition hover:brightness-110 w-full sm:w-auto sm:text-lg"
                     >
                         {t("help.submit")}
                     </button>
 
                     <button
                         onClick={onClose}
-                        className="px-6 bg-red-500 hover:bg-red-700 text-white text-lg"
+                        className="theme-btn-secondary rounded-md px-6 py-3 text-base transition hover:brightness-110 w-full sm:w-auto sm:text-lg"
                     >
                         {t("help.cancel")}
                     </button>

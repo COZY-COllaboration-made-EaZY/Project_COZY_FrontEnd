@@ -42,12 +42,14 @@ apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 });
 
 let isRefreshing = false;
+let hasShownExpiryAlert = false;
+type RetryConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 let pendingQueue: Array<{
     resolve: (token: string) => void;
-    reject: (err: any) => void;
+    reject: (err: unknown) => void;
 }> = [];
 
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: unknown, token: string | null = null) => {
     pendingQueue.forEach(({ resolve, reject }) => {
         if (token) resolve(token);
         else reject(error);
@@ -55,19 +57,63 @@ const processQueue = (error: any, token: string | null = null) => {
     pendingQueue = [];
 };
 
+const notifyTokenExpired = () => {
+    if (hasShownExpiryAlert) return;
+    hasShownExpiryAlert = true;
+    if (typeof window !== "undefined") {
+        alert("토큰이 만료되었습니다. 다시 로그인 해주세요.");
+    }
+};
+
+export const resetTokenExpiryAlert = () => {
+    hasShownExpiryAlert = false;
+};
+
+export const refreshAccessToken = async () => {
+    if (isRefreshing) {
+        return new Promise<string>((resolve, reject) => {
+            pendingQueue.push({ resolve, reject });
+        });
+    }
+    isRefreshing = true;
+    try {
+        const { data } = await refreshClient.post<{ accessToken?: string }>(
+            "/api/auth/refresh",
+            {}
+        );
+        const newAccess = data?.accessToken;
+        if (!newAccess) throw new Error("No accessToken from refresh");
+        useUserStore.getState().setAccessToken(newAccess);
+        processQueue(null, newAccess);
+        return newAccess;
+    } catch (err) {
+        processQueue(err, null);
+        await useUserStore.getState().logout();
+        notifyTokenExpired();
+        if (typeof window !== "undefined") {
+            window.location.href = "/login";
+        }
+        throw err;
+    } finally {
+        isRefreshing = false;
+    }
+};
+
 apiClient.interceptors.response.use(
     (res) => res,
     async (error: AxiosError) => {
         const status = error?.response?.status;
-        const original = error.config as any;
+        const original = error.config as RetryConfig | undefined;
+        if (!original) return Promise.reject(error);
 
         if (status === 401 && !original?._retry) {
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
                     pendingQueue.push({
                         resolve: (newToken) => {
-                            original.headers = original.headers || {};
-                            original.headers["Authorization"] = `Bearer ${newToken}`;
+                            const headers = (original.headers ?? new AxiosHeaders()) as AxiosHeaders;
+                            headers.set("Authorization", `Bearer ${newToken}`);
+                            original.headers = headers;
                             resolve(apiClient(original));
                         },
                         reject,
@@ -79,21 +125,13 @@ apiClient.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                const { data } = await refreshClient.post("/api/auth/refresh", {});
-                const newAccess: string | undefined = (data as any)?.accessToken;
-                if (!newAccess) throw new Error("No accessToken from refresh");
-
-                useUserStore.getState().setAccessToken(newAccess);
-
-                processQueue(null, newAccess);
-
-                original.headers = original.headers || {};
-                original.headers["Authorization"] = `Bearer ${newAccess}`;
+                const newAccess = await refreshAccessToken();
+                const headers = (original.headers ?? new AxiosHeaders()) as AxiosHeaders;
+                headers.set("Authorization", `Bearer ${newAccess}`);
+                original.headers = headers;
                 return apiClient(original);
             } catch (err) {
-                processQueue(err, null);
-                await useUserStore.getState().logout();
-                window.location.href = "/login";
+                notifyTokenExpired();
                 return Promise.reject(err);
             } finally {
                 isRefreshing = false;

@@ -11,7 +11,7 @@ import Image from 'next/image';
 import {useLocaleStore} from "@/store/useLocalStore";
 import {Locale, LOCALE} from "@/enum/locale";
 import {useTranslation} from "react-i18next";
-import i18n from "i18next";
+import { resolveProfileImageUrl } from "@/utils/resolveProfileImageUrl";
 
 export default function AvatarMenu() {
     const router = useRouter();
@@ -42,9 +42,7 @@ export default function AvatarMenu() {
         router.push('/login');
     };
 
-    const profileImageSrc = user?.profileImage
-        ? (user.profileImage.startsWith('http') ? user.profileImage : `/uploads/${user.profileImage}`)
-        : null;
+    const profileImageSrc = resolveProfileImageUrl(user?.profileImage);
 
     return (
         <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -54,25 +52,25 @@ export default function AvatarMenu() {
                         <Button variant='ghost' size='icon' className='rounded-full'>
                             <Avatar className='h-8 w-8'>
                                 {profileImageSrc ? (
-                                    <Image src={profileImageSrc} alt="프로필 이미지" width={32} height={32} className="rounded-full object-cover" />
+                                    <Image src={profileImageSrc} alt={t('auth.profileImageLabel')} width={32} height={32} className="rounded-full object-cover" />
                                 ) : (
-                                    <AvatarFallback className="bg-gray-300 text-lg font-bold text-white">
+                                    <AvatarFallback className="bg-white/20 text-lg font-bold text-white">
                                         {user?.nickname?.charAt(0).toUpperCase()}
                                     </AvatarFallback>
                                 )}
                             </Avatar>
                         </Button>
-                        <span className="text-gray-800 font-medium text-sm md:text-base">
-                            welcome {user?.nickname}
+                        <span className="text-white/90 font-medium text-sm md:text-base">
+                            {t('header.welcome', { name: user?.nickname })}
                         </span>
                     </div>
                 ) : (
                     <Button
                         variant="outline"
-                        className="px-4 py-2 rounded-full border border-white/70 bg-white/10 text-gray-800 font-semibold hover:bg-white/20 transition "
+                        className="px-4 py-2 rounded-full border border-white/70 bg-white/10 text-white font-semibold hover:bg-white/20 transition"
                         onClick={() => router.push('/login')}
                     >
-                        Login
+                        {t('auth.loginButton')}
                     </Button>
                 )}
             </DropdownMenuTrigger>
@@ -80,43 +78,43 @@ export default function AvatarMenu() {
             {isLoggedIn && user && (
                 <DropdownMenuContent
                     align='end'
-                    className="w-72 p-4 bg-white rounded-xl shadow-lg border border-gray-200"
+                    className="theme-card w-72 rounded-xl p-4 text-white"
                     onPointerDownOutside={() => setIsOpen(false)}
                 >
                     <div className="flex flex-col items-center">
                         <Avatar className="h-16 w-16 mb-2">
                             {profileImageSrc ? (
-                                <Image src={profileImageSrc} alt="프로필 이미지" width={64} height={64} className="rounded-full object-cover" />
+                                <Image src={profileImageSrc} alt={t('auth.profileImageLabel')} width={64} height={64} className="rounded-full object-cover" />
                             ) : (
-                                <AvatarFallback className="bg-gray-300 text-lg font-bold text-white">
+                                <AvatarFallback className="bg-white/20 text-lg font-bold text-white">
                                     {user?.nickname?.charAt(0).toUpperCase()}
                                 </AvatarFallback>
                             )}
                         </Avatar>
-                        <span className="font-semibold text-lg text-gray-900">{user?.nickname}</span>
-                        <span className="text-sm text-gray-500">
-                            {user?.statusMessage || "Not input statusMessage"}
+                        <span className="font-semibold text-lg text-white">{user?.nickname}</span>
+                        <span className="text-sm text-white/60">
+                            {user?.statusMessage || t('header.statusPlaceholder')}
                         </span>
                     </div>
 
-                    <div className="border-t border-gray-200 my-3"/>
+                    <div className="my-3 border-t border-white/20"/>
 
                     <div className="grid grid-cols-2 gap-3">
                         <DropdownMenuItem asChild>
                             <Link href='/myinfo'
-                                  className="flex items-center justify-center p-3 rounded-lg bg-gray-100 hover:bg-gray-200 font-semibold">
+                                  className="theme-btn-secondary flex items-center justify-center rounded-lg p-3 font-semibold transition hover:brightness-110">
                                 {t("menu.myinfo")}
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                             <Link href='/settings'
-                                  className="flex items-center justify-center p-3 rounded-lg bg-gray-100 hover:bg-gray-200 text-blue-600 font-semibold">
+                                  className="theme-btn-secondary flex items-center justify-center rounded-lg p-3 font-semibold text-white transition hover:brightness-110">
                                 {t("menu.settings")}
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             onSelect={handleLogout}
-                            className="flex items-center justify-center p-3 rounded-lg bg-gray-100 hover:bg-red-100 text-red-600 font-semibold"
+                            className="theme-btn-secondary flex items-center justify-center rounded-lg p-3 font-semibold text-white transition hover:brightness-110"
                         >
                             {t("menu.logout")}
                         </DropdownMenuItem>
@@ -125,9 +123,9 @@ export default function AvatarMenu() {
                                 e.preventDefault();
                                 cycleLanguage();
                             }}
-                            className={"flex flex-col items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 font-semibold"}>
-                            <span className={"text-sm"}>Language</span>
-                            <span className={"text-xs text-gray-500"}>
+                            className={"theme-btn-secondary flex flex-col items-center justify-center rounded-lg font-semibold transition hover:brightness-110"}>
+                            <span className={"text-sm"}>{t('menu.language')}</span>
+                            <span className={"text-xs text-white/60"}>
                                 {languageLabel}
                             </span>
                         </DropdownMenuItem>

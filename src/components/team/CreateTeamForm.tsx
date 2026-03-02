@@ -4,10 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { checkTeamNameRequest, createTeamRequest } from "@/api/requests/team";
 import { useUserStore } from "@/store/userStore";
+import { useTranslation } from "react-i18next";
 
 type NameCheckStatus = "idle" | "checking" | "available" | "duplicate" | "error";
 
 export const CreateTeamForm = () => {
+    const { t } = useTranslation();
     const [teamName, setTeamName] = useState("");
     const [description, setDescription] = useState("");
     const [status, setStatus] = useState<NameCheckStatus>("idle");
@@ -27,7 +29,7 @@ export const CreateTeamForm = () => {
     /** 중복 체크 */
     const handleCheckName = async () => {
         if (!teamName.trim()) {
-            setMessage("Please enter a team name.");
+            setMessage(t('team.create.nameRequired'));
             return;
         }
 
@@ -39,14 +41,14 @@ export const CreateTeamForm = () => {
 
             if (isDuplicate) {
                 setStatus("duplicate");
-                setMessage("This team name is already in use.");
+                setMessage(t('team.create.nameDuplicate'));
             } else {
                 setStatus("available");
-                setMessage("This team name is available.");
+                setMessage(t('team.create.nameAvailable'));
             }
         } catch {
             setStatus("error");
-            setMessage("Failed to check team name.");
+            setMessage(t('team.create.nameCheckFailed'));
         }
     };
 
@@ -62,10 +64,10 @@ export const CreateTeamForm = () => {
                 description: description.trim(),
             });
 
-            alert("Successfully created team!");
+            alert(t('team.create.success'));
             router.push("/");
         } catch {
-            setMessage("Failed to create team.");
+            setMessage(t('team.create.failed'));
         } finally {
             setSaving(false);
         }
@@ -73,32 +75,31 @@ export const CreateTeamForm = () => {
 
     return (
         <div className="flex min-h-screen items-center justify-center px-4">
-            <div className="w-full max-w-md rounded-2xl border border-violet-200 bg-white p-8 shadow-[0_8px_30px_rgba(139,92,246,0.12)]">
+            <div className="theme-card w-full max-w-md rounded-2xl p-8 text-white">
                 {/* Title */}
-                <h2 className="mb-6 text-center text-2xl font-semibold text-violet-700">
-                    Create New Team
+                <h2 className="mb-6 text-center text-2xl font-semibold text-white">
+                    {t('team.create.title')}
                 </h2>
 
                 {/* Team Name */}
                 <div className="mb-4">
-                    <label className="mb-1 block text-sm font-medium text-violet-700">
-                        Team Name
+                    <label className="mb-1 block text-sm font-medium text-white/80">
+                        {t('team.create.teamName')}
                     </label>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col gap-2 sm:flex-row">
                         <input
                             value={teamName}
                             onChange={(e) => handleChangeName(e.target.value)}
-                            className="flex-1 rounded-lg border border-violet-300 bg-violet-50 px-3 py-2 text-sm text-gray-800 placeholder-gray-400
-                                   focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
-                            placeholder="Enter team name"
+                            className="flex-1 rounded-lg border border-white/30 bg-white/90 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400
+                                   focus:border-white focus:outline-none focus:ring-2 focus:ring-white/40"
+                            placeholder={t('team.create.teamNamePlaceholder')}
                         />
                         <button
                             onClick={handleCheckName}
                             disabled={status === "checking"}
-                            className="rounded-lg bg-violet-500 px-4 py-2 text-sm font-medium text-white
-                                   hover:bg-violet-600 disabled:opacity-50"
+                            className="theme-btn-secondary rounded-lg px-4 py-2 text-sm font-medium transition hover:brightness-110 disabled:opacity-50 w-full sm:w-auto"
                         >
-                            {status === "checking" ? "Checking..." : "Check"}
+                            {status === "checking" ? t('team.create.checking') : t('team.create.check')}
                         </button>
                     </div>
                 </div>
@@ -108,10 +109,10 @@ export const CreateTeamForm = () => {
                     <p
                         className={`mb-4 text-sm ${
                             status === "available"
-                                ? "text-green-600"
+                                ? "text-emerald-200"
                                 : status === "duplicate" || status === "error"
-                                    ? "text-red-500"
-                                    : "text-gray-500"
+                                    ? "text-rose-200"
+                                    : "text-white/60"
                         }`}
                     >
                         {message}
@@ -120,16 +121,16 @@ export const CreateTeamForm = () => {
 
                 {/* Description */}
                 <div className="mb-6">
-                    <label className="mb-1 block text-sm font-medium text-violet-700">
-                        Description
+                    <label className="mb-1 block text-sm font-medium text-white/80">
+                        {t('team.create.description')}
                     </label>
                     <textarea
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         rows={3}
-                        className="w-full resize-none rounded-lg border border-violet-300 bg-violet-50 px-3 py-2 text-sm text-gray-800
-                               focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
-                        placeholder="Describe your team (optional)"
+                        className="w-full resize-none rounded-lg border border-white/30 bg-white/90 px-3 py-2 text-sm text-slate-900
+                               focus:border-white focus:outline-none focus:ring-2 focus:ring-white/40"
+                        placeholder={t('team.create.descriptionPlaceholder')}
                     />
                 </div>
 
@@ -137,10 +138,9 @@ export const CreateTeamForm = () => {
                 <button
                     onClick={handleSave}
                     disabled={status !== "available" || saving || !isLoggedIn}
-                    className="w-full rounded-xl bg-violet-600 py-3 text-sm font-semibold text-white
-                           hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="theme-btn-primary w-full rounded-xl py-3 text-sm font-semibold transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                    {saving ? "Creating..." : "Create Team"}
+                    {saving ? t('team.create.creating') : t('team.create.createButton')}
                 </button>
             </div>
         </div>

@@ -7,13 +7,13 @@ export default function Pagination() {
         <nav className="mt-6 flex items-center justify-center gap-2">
             <button
                 onClick={() => handlePageChange(1)}
-                className="rounded border px-3 py-1 text-sm bg-gray-900 text-white"
+                className="theme-btn-primary rounded border px-3 py-1 text-sm transition hover:brightness-110"
             >
                 1
             </button>
             <button
                 onClick={() => handlePageChange(2)}
-                className="rounded border px-3 py-1 text-sm hover:bg-gray-100"
+                className="theme-btn-secondary rounded border px-3 py-1 text-sm transition hover:brightness-110"
             >
                 2
             </button>

@@ -16,8 +16,8 @@ export default function TabsHeader({ projectName }: { projectName: string }) {
     ];
 
     return (
-        <aside className="w-40 bg-white border-r border-gray-200 py-6 px-4">
-            <nav className="flex flex-col gap-4">
+        <aside className="theme-card w-full md:w-40 py-4 md:py-6 px-4">
+            <nav className="flex gap-2 md:flex-col md:gap-4 overflow-x-auto md:overflow-visible pb-2 md:pb-0">
                 {tabs.map((tab) => {
                     const href = `${base}${tab.path ? `/${tab.path}` : ''}`;
                     const isActive = pathname === href;
@@ -27,10 +27,10 @@ export default function TabsHeader({ projectName }: { projectName: string }) {
                             key={tab.path}
                             href={href}
                             className={cn(
-                                'text-sm font-medium px-2 py-1.5 rounded text-center w-full',
+                                'text-sm font-medium px-3 py-1.5 rounded text-center w-full md:w-auto whitespace-nowrap transition',
                                 isActive
-                                    ? 'bg-blue-100 text-blue-700 font-semibold'
-                                    : 'text-gray-600 hover:bg-gray-100 hover:text-blue-600'
+                                    ? 'bg-white/25 text-white font-semibold shadow-[0_10px_24px_rgba(15,23,42,0.35)]'
+                                    : 'text-white/70 hover:bg-white/10 hover:text-white'
                             )}
                         >
                             {tab.label}
